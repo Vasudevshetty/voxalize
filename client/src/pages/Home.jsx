@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { FaMicrophone, FaSearch, FaLanguage } from "react-icons/fa";
-import Navbar from "../components/Navbar";
 
 function Home() {
   return (
