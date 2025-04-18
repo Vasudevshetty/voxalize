@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaMicrophone, FaSearch, FaLanguage } from "react-icons/fa";
+import Navbar from "../components/Navbar";
 
 function Home() {
   return (
@@ -45,8 +46,8 @@ function Home() {
               <span className="text-green-400">Voice</span>
               <span className="text-cyan-400">-</span>
               <span className="text-cyan-600">Driven</span>
-            </span>
-           {" "} Visualization
+            </span>{" "}
+            Visualization
           </h2>
           <p className="text-gray-300 text-sm sm:text-base">
             Transform complex ideas, pitches, or data into clear, compelling
