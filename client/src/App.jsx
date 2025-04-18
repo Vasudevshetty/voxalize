@@ -12,44 +12,42 @@ import NotFound from "./pages/NotFound";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
+      <Route path="/" element={<Home />} />
 
-        <Route
-          path="/auth/login"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/auth/signup"
-          element={
-            <PublicRoute>
-              <Signup />
-            </PublicRoute>
-          }
-        />
+      <Route
+        path="/auth/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/auth/signup"
+        element={
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        }
+      />
 
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Graph />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
-        />
-        <Route path="*" element={<NotFound />} />
-      </Route>
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <Graph />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
