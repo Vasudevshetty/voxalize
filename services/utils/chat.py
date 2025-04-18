@@ -75,7 +75,7 @@ def chat_db(db_name, host, user, password, database, query):
                 if not is_valid_sql(sql_query):
                     raise ValueError(f"The generated query doesn't appear to be valid SQL: {sql_query}")
             except ValueError as e:
-                # Don't run another chain - try to extract SQL from the original response
+              
                 sql_query = extract_sql_query(agent_response)
                 if not is_valid_sql(sql_query):
                     raise ValueError(f"Failed to generate valid SQL: {sql_query}")
