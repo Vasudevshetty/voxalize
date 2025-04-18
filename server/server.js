@@ -30,8 +30,8 @@ app.get("/api/v1", (req, res) => {
   res.send("Hello World!");
 });
 
-app.use("/api/v1/auth", require("./routers/auth"));
-app.use("/api/v1/user", require("./routers/user"));
+app.use("/api/v1/auth", require("./routes/auth"));
+app.use("/api/v1/user", require("./routes/user"));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
