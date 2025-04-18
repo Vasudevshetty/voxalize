@@ -6,6 +6,9 @@ from groq import Groq
 from googletrans import Translator
 import os
 from dotenv import load_dotenv
+from pathlib import Path
+import uuid
+from fastapi.responses import FileResponse
 load_dotenv()
 
 groq_api_key_2 = os.getenv("GROQ_API_KEY_2")
@@ -162,7 +165,48 @@ async def translate(text: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error translating text: {str(e)}")
     
+@api.post("/text-to-speech")
+async def text_to_speech(text: str, voice: str = Form("Aaliyah-PlayAI")):
+    """
+    Converts text to speech using Groq's API and returns the audio file.
+    """
+    try:
+        unique_id = str(uuid.uuid4())
+        output_dir = Path("speech_output")
+        output_dir.mkdir(exist_ok=True) 
+        
+        speech_file_path = output_dir / f"{unique_id}.wav"
+     
+        response = client.audio.speech.create(
+            model="playai-tts",  
+            voice=voice,        
+            response_format="wav", 
+            input=text         
+        )
+        
+   
+        try:
+             with open(speech_file_path, "wb") as f:
+                
+                 response.write_to_file(speech_file_path) 
 
+        except AttributeError:
+             try:
+                 response.stream_to_file(speech_file_path)
+             except AttributeError as e:
+                 raise AttributeError(f"Groq response object does not have expected methods ('write_to_file' or 'stream_to_file'). Error: {e}")
+
+        return FileResponse(
+            path=speech_file_path,
+            media_type="audio/wav",
+            filename=f"speech_{unique_id}.wav" 
+        )
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error generating speech: {str(e)}\n{error_details}") 
+        raise HTTPException(status_code=500, detail=f"Error generating speech: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
