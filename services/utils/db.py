@@ -8,14 +8,14 @@ def configure_db(db_name, host, user, password, database):
     if db_name == "mysql": 
         try:
             conn_string = f"mysql+mysqlconnector://{user}:{password}@{host}/{database}"
-            engine = create_engine(conn_string)
+            engine = create_engine(conn_string, connect_args={"read_only": True})
             return SQLDatabase(engine), engine
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Database connection error: {str(e)}")
     elif db_name == "postgresql":
         try:
             conn_string = f"postgresql+psycopg2://{user}:{password}@{host}/{database}"
-            engine = create_engine(conn_string)
+            engine = create_engine(conn_string, connect_args={"options": "-c default_transaction_read_only=on"})
             return SQLDatabase(engine), engine
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Database connection error: {str(e)}")  
@@ -61,8 +61,11 @@ def is_valid_sql(query):
     if re.match(r'^[\d.]+$', query.strip()):
         return False
 
-    sql_keywords = ['SELECT', 'FROM', 'WHERE', 'INSERT', 'UPDATE', 'DELETE', 'JOIN', 'GROUP BY', 'ORDER BY']
-    return any(keyword.upper() in query.upper() for keyword in sql_keywords)
+    if not query.upper().strip().startswith('SELECT'):
+        return False
+
+    select_keywords = ['SELECT', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'LIMIT']
+    return any(keyword.upper() in query.upper() for keyword in select_keywords)
 
 
 def generate_natural_language_queries(schema):
