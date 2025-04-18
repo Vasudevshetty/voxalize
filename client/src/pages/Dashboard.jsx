@@ -13,7 +13,7 @@ const databases = [
   { id: 5, name: "Database 1" },
 ];
 
-function Graph() {
+function Dashboard() {
   const [selectedDatabase, setSelectedDatabase] = useState(1);
   const [selectedHistoryId, setSelectedHistoryId] = useState(1);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -342,4 +342,4 @@ function Graph() {
   );
 }
 
-export default Graph;
+export default Dashboard;

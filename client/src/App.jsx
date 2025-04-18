@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import Graph from "./components/Graph";
+import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import Layout from "./components/Layout";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -54,7 +53,7 @@ function App() {
         path="/dashboard"
         element={
           <PrivateRoute>
-            <Graph />
+            <Dashboard />
           </PrivateRoute>
         }
       />
