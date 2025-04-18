@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { FaMicrophone, FaSearch, FaLanguage } from "react-icons/fa";
 import Navbar from "../components/Navbar";
+import VoiceToTextTranslator from "../components/VoiceToText";
 
 function Home() {
   return (
@@ -26,7 +26,10 @@ function Home() {
         </div>
 
         {/* Mic Control */}
-        <div className="h-96  text-white border w-full ">DEMO PART</div>
+        <div className="h-96  text-white border w-full ">
+          DEMO PART
+          <VoiceToTextTranslator />
+        </div>
         {/* <div className="flex items-center justify-between w-58 bg-[#1a1a1a] rounded-full px-6 py-3 relative shadow-lg">
         <FaSearch size={26} className="text-gray-400 text-lg" />
         <div className="w-16 h-16  bg-black rounded-full flex items-center justify-center shadow-lg">
