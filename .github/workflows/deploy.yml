@@ -48,7 +48,7 @@ jobs:
 
             echo "Navigating to services directory..."
             cd ../services
-            source venv/bin/activate
+            source hackenv/bin/activate
             pip install -r requirements.txt
 
             echo "Restarting backend with PM2..."

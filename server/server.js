@@ -16,8 +16,8 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Example route
-app.get("/", (req, res) => {
-  res.send("Hello from Node.js + MongoDB!");
+app.get("/api/v1", (req, res) => {
+  res.send("Hello World!");
 });
 
 app.listen(PORT, () => {
