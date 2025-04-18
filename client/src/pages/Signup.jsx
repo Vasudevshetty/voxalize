@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/Auth"; // Adjust the path based on your project structure
 
 function Signup() {
@@ -160,6 +160,28 @@ function Signup() {
               )}
             </div>
 
+            {/* Mobile Number */}
+            <div>
+              <label htmlFor="mobileNumber" className="text-gray-300 text-sm">
+                Mobile Number
+              </label>
+              <input
+                type="tel"
+                name="mobileNumber"
+                id="mobileNumber"
+                required
+                value={formData.mobileNumber}
+                onChange={handleChange}
+                className={`w-full bg-[#1a1a1a] border ${
+                  formErrors.mobileNumber ? "border-red-500" : "border-gray-800"
+                } rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white`}
+              />
+              {formErrors.mobileNumber && (
+                <p className="text-red-500 text-sm">
+                  {formErrors.mobileNumber}
+                </p>
+              )}
+            </div>
             {/* Password */}
             <div>
               <label htmlFor="password" className="text-gray-300 text-sm">
@@ -208,29 +230,6 @@ function Signup() {
                 </p>
               )}
             </div>
-
-            {/* Mobile Number */}
-            <div>
-              <label htmlFor="mobileNumber" className="text-gray-300 text-sm">
-                Mobile Number
-              </label>
-              <input
-                type="tel"
-                name="mobileNumber"
-                id="mobileNumber"
-                required
-                value={formData.mobileNumber}
-                onChange={handleChange}
-                className={`w-full bg-[#1a1a1a] border ${
-                  formErrors.mobileNumber ? "border-red-500" : "border-gray-800"
-                } rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white`}
-              />
-              {formErrors.mobileNumber && (
-                <p className="text-red-500 text-sm">
-                  {formErrors.mobileNumber}
-                </p>
-              )}
-            </div>
           </div>
 
           <button
@@ -266,6 +265,18 @@ function Signup() {
               "Sign Up"
             )}
           </button>
+
+          <div className="text-center text-gray-400">
+            <p>
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+              >
+                Log in
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>

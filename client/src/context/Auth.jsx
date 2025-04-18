@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getProfile } from "../redux/slices/user";
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -15,6 +17,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.user);
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState({
@@ -35,9 +39,12 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const res = await api.get("/api/v1/auth/me");
-      setUser(res.data.user);
-      setIsAuthenticated(true);
+      // Only dispatch getProfile, don't make a separate auth check
+      const resultAction = await dispatch(getProfile());
+      if (getProfile.fulfilled.match(resultAction)) {
+        setUser(resultAction.payload);
+        setIsAuthenticated(true);
+      }
     } catch {
       setUser(null);
       setIsAuthenticated(false);
@@ -46,10 +53,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
   const login = async ({ email, password }) => {
     setErrors((prev) => ({ ...prev, login: null }));
     setLoading((prev) => ({ ...prev, login: true }));
@@ -57,6 +60,8 @@ export const AuthProvider = ({ children }) => {
       const res = await api.post("/api/v1/auth/login", { email, password });
       setUser(res.data.user);
       setIsAuthenticated(true);
+      // Get full profile after login
+      dispatch(getProfile());
       return { success: true };
     } catch (err) {
       const message = err?.response?.data?.message || "Login failed.";
@@ -80,6 +85,8 @@ export const AuthProvider = ({ children }) => {
       });
       setUser(res.data.user);
       setIsAuthenticated(true);
+      // Fetch full profile after signup
+      dispatch(getProfile());
       return { success: true };
     } catch (err) {
       const message = err?.response?.data?.message || "Signup failed.";
@@ -96,6 +103,8 @@ export const AuthProvider = ({ children }) => {
       await api.get("/api/v1/auth/logout");
       setUser(null);
       setIsAuthenticated(false);
+      // Reset profile in Redux store
+      dispatch({ type: "user/resetProfile" });
       return { success: true };
     } catch (err) {
       const message = err?.response?.data?.message || "Logout failed.";
@@ -137,6 +146,18 @@ export const AuthProvider = ({ children }) => {
       setLoading((prev) => ({ ...prev, resetPassword: false }));
     }
   };
+
+  useEffect(() => {
+    if (profile) {
+      setUser(profile);
+      setIsAuthenticated(true);
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const value = {
     user,

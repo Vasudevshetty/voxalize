@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Add Link import
 import { useAuth } from "../context/Auth";
 
 function Login() {
@@ -114,6 +114,19 @@ function Login() {
               "Log In"
             )}
           </button>
+
+          {/* Add the "Don't have an account?" section */}
+          <div className="text-center text-gray-400">
+            <p>
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>

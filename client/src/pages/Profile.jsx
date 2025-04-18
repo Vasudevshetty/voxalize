@@ -1,42 +1,175 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/Auth";
-import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updatePassword,
+  updateProfile,
+  getProfile,
+} from "../redux/slices/user";
+import { FaUser, FaEnvelope, FaLock, FaCamera } from "react-icons/fa";
 
 function Profile() {
-  const { user, loading, error } = useAuth();
+  const dispatch = useDispatch();
+  const { user } = useAuth();
+  const { loading, error, profile } = useSelector((state) => state.user);
   const [editMode, setEditMode] = useState(false);
+  const fileInputRef = useRef(null);
+  const [updateError, setUpdateError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [profileData, setProfileData] = useState({
+    username: user?.username || "",
+    email: user?.email || "",
+    mobileNumber: user?.mobileNumber || "",
+  });
+
   const [formData, setFormData] = useState({
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-  const [updateError, setUpdateError] = useState("");
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    dispatch(getProfile());
+  }, [dispatch]);
+
+  // Update local state when profile changes
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        username: profile.username || "",
+        email: profile.email || "",
+        mobileNumber: profile.mobileNumber || "",
+      });
+    }
+  }, [profile]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setUpdateError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setUpdateError("");
 
     if (formData.newPassword !== formData.confirmPassword) {
       setUpdateError("New passwords do not match");
       return;
     }
 
-    // const { success, message } = await updatePassword({
-    //     oldPassword: formData.oldPassword,
-    //     newPassword: formData.newPassword,
-    // });
+    const resultAction = await dispatch(
+      updatePassword({
+        oldPassword: formData.oldPassword,
+        newPassword: formData.newPassword,
+      })
+    );
 
-    // if (success) {
-    //     setEditMode(false);
-    //     setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    // } else {
-    //     setUpdateError(message);
-    // }
+    if (updatePassword.fulfilled.match(resultAction)) {
+      setEditMode(false);
+      setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    }
   };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type and size
+    const validTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      setUpdateError("Please upload an image file (JPG, PNG, or GIF)");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUpdateError("File size should be less than 5MB");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    // Add existing profile data
+    Object.keys(profileData).forEach((key) => {
+      if (profileData[key]) {
+        formData.append(key, profileData[key]);
+      }
+    });
+
+    try {
+      const resultAction = await dispatch(updateProfile(formData));
+
+      if (updateProfile.fulfilled.match(resultAction)) {
+        setUploadProgress(0);
+        // Refresh profile data
+        dispatch(getProfile());
+      }
+    } catch {
+      setUpdateError("Failed to upload image. Please try again.");
+    }
+  };
+
+  // Loading spinner component
+  const LoadingSpinner = () => (
+    <svg
+      className="animate-spin h-5 w-5 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
+
+  const profileImageSection = (
+    <div className="relative w-32 h-32 mx-auto mb-6">
+      <img
+        src={
+          profile?.profileImage || user?.profileImage || "/default-avatar.png"
+        }
+        alt="Profile"
+        className="w-full h-full rounded-full object-cover border-4 border-gray-800"
+      />
+      <button
+        onClick={() => fileInputRef.current?.click()}
+        disabled={loading.update}
+        className="absolute bottom-0 right-0 bg-cyan-400 p-2 rounded-full hover:bg-cyan-500 transition-colors disabled:opacity-50"
+      >
+        {loading.update ? (
+          <LoadingSpinner />
+        ) : (
+          <FaCamera className="text-white" />
+        )}
+      </button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+        accept="image/*"
+        className="hidden"
+      />
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+          <span className="text-white">{uploadProgress}%</span>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="bg-black min-h-screen flex items-center justify-center px-4">
@@ -51,13 +184,15 @@ function Profile() {
         </div>
 
         <div className="space-y-6">
-          {/* User Info Section */}
+          {profileImageSection}
           <div className="space-y-4">
             <div className="flex items-center space-x-4 p-4 bg-[#1a1a1a] rounded-lg">
               <FaUser className="text-green-400 text-xl" />
               <div>
                 <p className="text-gray-400 text-sm">Username</p>
-                <p className="text-white">{user?.username}</p>
+                <p className="text-white">
+                  {profile?.username || user?.username}
+                </p>
               </div>
             </div>
 
@@ -65,12 +200,11 @@ function Profile() {
               <FaEnvelope className="text-cyan-400 text-xl" />
               <div>
                 <p className="text-gray-400 text-sm">Email</p>
-                <p className="text-white">{user?.email}</p>
+                <p className="text-white">{profile?.email || user?.email}</p>
               </div>
             </div>
           </div>
 
-          {/* Password Change Section */}
           <div className="pt-6 border-t border-gray-800">
             <button
               onClick={() => setEditMode(!editMode)}
@@ -82,9 +216,9 @@ function Profile() {
 
             {editMode && (
               <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-                {(updateError || error) && (
+                {(updateError || error?.password) && (
                   <div className="text-red-500 text-sm text-center bg-red-500/10 py-2 rounded">
-                    {updateError || error}
+                    {updateError || error.password}
                   </div>
                 )}
 
@@ -119,31 +253,12 @@ function Profile() {
 
                 <button
                   type="submit"
-                  disabled={loading.updatePassword}
+                  disabled={loading.password}
                   className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-lg px-4 py-2 hover:opacity-90 transition-opacity flex items-center justify-center"
                 >
-                  {loading.updatePassword ? (
+                  {loading.password ? (
                     <>
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
+                      <LoadingSpinner />
                       Updating...
                     </>
                   ) : (
