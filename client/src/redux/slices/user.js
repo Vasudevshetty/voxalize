@@ -29,7 +29,11 @@ export const updateProfile = createAsyncThunk(
           "Content-Type": "multipart/form-data",
         },
       };
-      const res = await api.put("/api/v1/users/profile", formData, config);
+      const res = await api.put(
+        "/api/v1/users/update-profile",
+        formData,
+        config
+      );
       return res.data.user;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Update failed");
@@ -41,7 +45,7 @@ export const updatePassword = createAsyncThunk(
   "user/updatePassword",
   async ({ oldPassword, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await api.put("/api/v1/users/password", {
+      const res = await api.put("/api/v1/users/update-password", {
         oldPassword,
         newPassword,
       });

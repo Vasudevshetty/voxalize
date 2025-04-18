@@ -6,16 +6,24 @@ import {
   updateProfile,
   getProfile,
 } from "../redux/slices/user";
-import { FaUser, FaEnvelope, FaLock, FaCamera } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaCamera, FaPhone } from "react-icons/fa";
 
 function Profile() {
   const dispatch = useDispatch();
   const { user } = useAuth();
   const { loading, error, profile } = useSelector((state) => state.user);
-  const [editMode, setEditMode] = useState(false);
   const fileInputRef = useRef(null);
-  const [updateError, setUpdateError] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [editProfileMode, setEditProfileMode] = useState(false);
+  const [editPasswordMode, setEditPasswordMode] = useState(false);
+
+  const [updateError, setUpdateError] = useState("");
+  const [formData, setFormData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   const [profileData, setProfileData] = useState({
     username: user?.username || "",
@@ -23,18 +31,10 @@ function Profile() {
     mobileNumber: user?.mobileNumber || "",
   });
 
-  const [formData, setFormData] = useState({
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  // Fetch profile data on component mount
   useEffect(() => {
     dispatch(getProfile());
   }, [dispatch]);
 
-  // Update local state when profile changes
   useEffect(() => {
     if (profile) {
       setProfileData({
@@ -45,16 +45,20 @@ function Profile() {
     }
   }, [profile]);
 
-  const handleChange = (e) => {
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
+    setUpdateError("");
+  };
+
+  const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setUpdateError("");
   };
 
-  const handleSubmit = async (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    setUpdateError("");
-
     if (formData.newPassword !== formData.confirmPassword) {
       setUpdateError("New passwords do not match");
       return;
@@ -68,8 +72,20 @@ function Profile() {
     );
 
     if (updatePassword.fulfilled.match(resultAction)) {
-      setEditMode(false);
+      setEditPasswordMode(false);
       setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    }
+  };
+
+  const handleProfileSubmit = async () => {
+    try {
+      const resultAction = await dispatch(updateProfile(profileData));
+      if (updateProfile.fulfilled.match(resultAction)) {
+        setEditProfileMode(false);
+        dispatch(getProfile());
+      }
+    } catch {
+      setUpdateError("Failed to update profile. Please try again.");
     }
   };
 
@@ -77,7 +93,6 @@ function Profile() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type and size
     const validTypes = ["image/jpeg", "image/png", "image/gif"];
     if (!validTypes.includes(file.type)) {
       setUpdateError("Please upload an image file (JPG, PNG, or GIF)");
@@ -92,19 +107,10 @@ function Profile() {
     const formData = new FormData();
     formData.append("profileImage", file);
 
-    // Add existing profile data
-    Object.keys(profileData).forEach((key) => {
-      if (profileData[key]) {
-        formData.append(key, profileData[key]);
-      }
-    });
-
     try {
       const resultAction = await dispatch(updateProfile(formData));
-
       if (updateProfile.fulfilled.match(resultAction)) {
         setUploadProgress(0);
-        // Refresh profile data
         dispatch(getProfile());
       }
     } catch {
@@ -112,7 +118,6 @@ function Profile() {
     }
   };
 
-  // Loading spinner component
   const LoadingSpinner = () => (
     <svg
       className="animate-spin h-5 w-5 text-white"
@@ -140,7 +145,8 @@ function Profile() {
     <div className="relative w-32 h-32 mx-auto mb-6">
       <img
         src={
-          profile?.profileImage || user?.profileImage || "/default-avatar.png"
+          import.meta.env.VITE_APP_BACKEND_URL + profile?.profileImage ||
+          user?.profileImage
         }
         alt="Profile"
         className="w-full h-full rounded-full object-cover border-4 border-gray-800"
@@ -183,92 +189,97 @@ function Profile() {
           <p className="mt-2 text-gray-400">Manage your account information</p>
         </div>
 
-        <div className="space-y-6">
-          {profileImageSection}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4 p-4 bg-[#1a1a1a] rounded-lg">
-              <FaUser className="text-green-400 text-xl" />
-              <div>
-                <p className="text-gray-400 text-sm">Username</p>
-                <p className="text-white">
-                  {profile?.username || user?.username}
-                </p>
-              </div>
-            </div>
+        {profileImageSection}
 
-            <div className="flex items-center space-x-4 p-4 bg-[#1a1a1a] rounded-lg">
-              <FaEnvelope className="text-cyan-400 text-xl" />
-              <div>
-                <p className="text-gray-400 text-sm">Email</p>
-                <p className="text-white">{profile?.email || user?.email}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-6 border-t border-gray-800">
-            <button
-              onClick={() => setEditMode(!editMode)}
-              className="text-cyan-400 hover:text-cyan-300 flex items-center space-x-2"
-            >
-              <FaLock />
-              <span>Change Password</span>
-            </button>
-
-            {editMode && (
-              <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-                {(updateError || error?.password) && (
-                  <div className="text-red-500 text-sm text-center bg-red-500/10 py-2 rounded">
-                    {updateError || error.password}
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <input
-                    type="password"
-                    name="oldPassword"
-                    placeholder="Current Password"
-                    value={formData.oldPassword}
-                    onChange={handleChange}
-                    className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-400 text-white"
-                  />
-
-                  <input
-                    type="password"
-                    name="newPassword"
-                    placeholder="New Password"
-                    value={formData.newPassword}
-                    onChange={handleChange}
-                    className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-400 text-white"
-                  />
-
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Confirm New Password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-400 text-white"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading.password}
-                  className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-lg px-4 py-2 hover:opacity-90 transition-opacity flex items-center justify-center"
-                >
-                  {loading.password ? (
-                    <>
-                      <LoadingSpinner />
-                      Updating...
-                    </>
+        <div className="space-y-4">
+          {["username", "email", "mobileNumber"].map((field, idx) => {
+            const icons = [<FaUser />, <FaEnvelope />, <FaPhone />];
+            const labels = ["Username", "Email", "Mobile Number"];
+            return (
+              <div
+                key={field}
+                className="flex items-center space-x-4 p-4 bg-[#1a1a1a] rounded-lg"
+              >
+                <div className="text-cyan-400 text-xl">{icons[idx]}</div>
+                <div className="flex-1">
+                  <p className="text-gray-400 text-sm">{labels[idx]}</p>
+                  {editProfileMode ? (
+                    <input
+                      type="text"
+                      name={field}
+                      value={profileData[field]}
+                      onChange={handleProfileChange}
+                      className="w-full bg-transparent border-b border-gray-700 text-white focus:outline-none focus:border-cyan-400"
+                    />
                   ) : (
-                    "Update Password"
+                    <p className="text-white">{profileData[field]}</p>
                   )}
-                </button>
-              </form>
-            )}
-          </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        <div className="pt-4 space-y-2">
+          <button
+            onClick={() => {
+              if (editProfileMode) handleProfileSubmit();
+              else setEditProfileMode(true);
+            }}
+            className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-lg px-4 py-2 hover:opacity-90 transition-opacity"
+          >
+            {editProfileMode ? "Save Changes" : "Edit Profile"}
+          </button>
+
+          <button
+            onClick={() => setEditPasswordMode(!editPasswordMode)}
+            className="text-cyan-400 hover:text-cyan-300 flex items-center space-x-2"
+          >
+            <FaLock />
+            <span>Change Password</span>
+          </button>
+        </div>
+
+        {editPasswordMode && (
+          <form onSubmit={handlePasswordSubmit} className="mt-4 space-y-4">
+            {(updateError || error?.password) && (
+              <div className="text-red-500 text-sm text-center bg-red-500/10 py-2 rounded">
+                {updateError || error.password}
+              </div>
+            )}
+
+            {["oldPassword", "newPassword", "confirmPassword"].map(
+              (field, idx) => (
+                <input
+                  key={field}
+                  type="password"
+                  name={field}
+                  placeholder={
+                    ["Current", "New", "Confirm New"][idx] + " Password"
+                  }
+                  value={formData[field]}
+                  onChange={handlePasswordChange}
+                  className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-400 text-white"
+                />
+              )
+            )}
+
+            <button
+              type="submit"
+              disabled={loading.password}
+              className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-lg px-4 py-2 hover:opacity-90 transition-opacity flex items-center justify-center"
+            >
+              {loading.password ? (
+                <>
+                  <LoadingSpinner />
+                  <span className="ml-2">Updating...</span>
+                </>
+              ) : (
+                "Update Password"
+              )}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
