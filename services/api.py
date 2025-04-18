@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Form
-from pydantic import BaseModel
-from utils.db import configure_db, get_database_schema
+from fastapi import FastAPI, HTTPException, UploadFile, Form, Query
+from pydantic import BaseModel, Field
+from utils.db import configure_db, get_database_schema, generate_natural_language_queries
 from utils.chat import chat_db
 from groq import Groq
 from googletrans import Translator
@@ -9,7 +9,12 @@ from dotenv import load_dotenv
 from pathlib import Path
 import uuid
 from fastapi.responses import FileResponse
+from typing import Optional
+import json
+import re
 load_dotenv()
+
+import traceback
 
 groq_api_key_2 = os.getenv("GROQ_API_KEY_2")
 
@@ -26,6 +31,11 @@ class DatabaseConfig(BaseModel):
     
 class QueryRequest(BaseModel):
     query: str
+
+class SearchCompletionsRequest(BaseModel):
+    term: str = Field(..., description="The partial search term to find completions for")
+    limit: int = Field(10, description="Maximum number of completions to return")
+    database_config: Optional[DatabaseConfig] = None
 
 async def translate_to_english(text: str) -> str:
     translator = Translator()
@@ -210,8 +220,69 @@ async def text_to_speech(text: str, voice: str = Form("Aaliyah-PlayAI")):
         error_details = traceback.format_exc()
         print(f"Error generating speech: {str(e)}\n{error_details}") 
         raise HTTPException(status_code=500, detail=f"Error generating speech: {str(e)}")
+    
+    
+@api.post("/search-completions")
+async def search_completions(request: SearchCompletionsRequest):
+    term, limit, config = request.term, request.limit, request.database_config
+    completions, schema = [], None
 
+    # Step 1: Retrieve schema if database config is provided
+    if config:
+        try:
+            _, engine = configure_db(
+                config.dbname, config.host, config.user, config.password, config.database
+            )
+            schema = get_database_schema(engine)
+        except Exception as e:
+            print(f"[Warning] Failed to load DB schema: {e}")
+
+    # Step 2: Create prompt based on schema presence
+    if schema:
+        prompt = (
+            f"Given the following database schema:\n{schema}\n\n"
+            f"Generate relevant search suggestions or autocompletions for a user.\n"
+            f"The user has typed the partial term: \"{term}\"\n"
+            f"Provide up to {limit} suggestions related to the schema.\n"
+            f"Output as a JSON list of strings."
+        )
+    else:
+        prompt = (
+            f"Generate general database-related autocompletions.\n"
+            f"The user has typed the partial term: \"{term}\"\n"
+            f"Suggest up to {limit} completions with SQL keywords or query phrases.\n"
+            f"Output as a JSON list of strings."
+        )
+
+    # Step 3: Call the LLM
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            temperature=0.2,
+            max_tokens=256,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": "You are an assistant providing database query autocompletions."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        content = response.choices[0].message.content
+
+        try:
+            parsed = json.loads(content)
+            completions = parsed.get("suggestions") if isinstance(parsed, dict) else parsed
+        except json.JSONDecodeError:
+            print(f"[Warning] Invalid JSON from LLM: {content}")
+            completions = re.findall(r'"(.*?)"', content) or []
+
+    except Exception as e:
+        print(f"[Error] LLM failure for term '{term}': {e}\n{traceback.format_exc()}")
+        completions = [f"Error generating suggestions for '{term}'"]
+
+    return {"completions": completions[:limit]}
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(api, port=1111)
+
