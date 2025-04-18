@@ -1,1 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Share+Tech+Mono&display=swap');
 @import "tailwindcss";
+
+.font-dmsans {
+  font-family: "DM Sans", sans-serif;
+}
+
+.font-dmmono {
+  font-family: "DM Mono", monospace;
+}
+
+.font-opensans {
+  font-family: "Open Sans", sans-serif;
+}
+
+.font-sharetechmono {
+  font-family: "Share Tech Mono", monospace;
+}
