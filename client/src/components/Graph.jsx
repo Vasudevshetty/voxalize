@@ -140,7 +140,7 @@ function Graph() {
       </div>
 
       {/* Right Sidebar - Databases */}
-      {/* <div className="w-80 bg-[#131313] border-l border-gray-800 p-6">
+      <div className="w-80 bg-[#131313] border-l border-gray-800 p-6">
         <h2 className="text-gray-300 mb-6 font-medium text-lg">Databases</h2>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5, 6].map((num) => {
@@ -174,7 +174,7 @@ function Graph() {
             );
           })}
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }
