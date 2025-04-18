@@ -46,7 +46,7 @@ jobs:
             echo "Installing backend dependencies..."
             npm install
 
-            echo "Navigating to chatbot directory..."
+            echo "Navigating to services directory..."
             cd ../services
             source venv/bin/activate
             pip install -r requirements.txt
