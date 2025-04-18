@@ -15,11 +15,25 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    mobileNumber: {
+      type: String,
+      required: true,
+      match: [/^\+?\d{10,15}$/, "Please provide a valid mobile number"],
+    },
     password: {
       type: String,
       required: true,
       minlength: 6,
     },
+    profileImage: {
+      type: String,
+      default: "",
+    },
+    databases: [{ type: mongoose.Schema.Types.ObjectId, ref: "Database" }],
+    sessions: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuerySession" }],
+    queryMessages: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "QueryMessage" },
+    ],
     resetPasswordToken: String,
     resetPasswordExpires: Date,
   },

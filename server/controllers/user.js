@@ -1,19 +1,38 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 
+// @desc    Get current user info
 exports.getMe = async (req, res) => {
-  res.status(200).json({ success: true, user: req.user });
+  try {
+    const user = await User.findById(req.user._id)
+      .select("-password -resetPasswordToken -resetPasswordExpires")
+      .populate("databases")
+      .populate("sessions");
+
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
+// profileImage is uploaded via form-data
 exports.updateProfile = async (req, res) => {
   try {
-    const { username, email } = req.body;
+    const { username, email, mobileNumber } = req.body;
 
-    const updated = await User.findByIdAndUpdate(
-      req.user._id,
-      { username, email },
-      { new: true, runValidators: true }
-    ).select("-password");
+    const updates = {};
+    if (username) updates.username = username;
+    if (email) updates.email = email;
+    if (mobileNumber) updates.mobileNumber = mobileNumber;
+
+    if (req.file) {
+      updates.profileImage = `/uploads/profile-images/${req.file.filename}`;
+    }
+
+    const updated = await User.findByIdAndUpdate(req.user._id, updates, {
+      new: true,
+      runValidators: true,
+    }).select("-password -resetPasswordToken -resetPasswordExpires");
 
     res.status(200).json({ success: true, user: updated });
   } catch (err) {
@@ -21,21 +40,29 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+// @desc    Update password
 exports.updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const user = await User.findById(req.user._id);
 
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: "Both fields are required" });
+    }
+
+    const user = await User.findById(req.user._id);
     const match = await bcrypt.compare(oldPassword, user.password);
-    if (!match)
+
+    if (!match) {
       return res.status(400).json({ message: "Old password is incorrect" });
+    }
 
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Password updated successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
