@@ -31,15 +31,35 @@ const sendToken = (user, res) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, mobileNumber } = req.body;
 
-    const userExists = await User.findOne({ $or: [{ email }, { username }] });
+    // Check if mobile number is valid (using regex from your schema)
+    const mobileNumberRegex = /^\+?\d{10,15}$/;
+    if (!mobileNumberRegex.test(mobileNumber)) {
+      return res
+        .status(400)
+        .json({ message: "Please provide a valid mobile number" });
+    }
+
+    // Check if the user with the same email or username already exists
+    const userExists = await User.findOne({
+      $or: [{ email }, { username }, { mobileNumber }],
+    });
     if (userExists)
       return res.status(400).json({ message: "User already exists" });
 
+    // Hash the password before saving
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, email, password: hashed });
 
+    // Create a new user with the given details
+    const user = await User.create({
+      username,
+      email,
+      password: hashed,
+      mobileNumber,
+    });
+
+    // Send the token to the client upon successful creation
     sendToken(user, res);
   } catch (err) {
     res.status(500).json({ message: err.message });
