@@ -68,3 +68,4 @@ instance/
 docs
 
 hackenv
+.env
