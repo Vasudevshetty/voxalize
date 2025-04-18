@@ -65,7 +65,7 @@ function App() {
           </PrivateRoute>
         }
       />
-      <Route path="/chat" element={<Chat />} />
+      <Route path="/chat/:databaseId" element={<Chat />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
