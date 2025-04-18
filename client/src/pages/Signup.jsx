@@ -10,6 +10,7 @@ function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
+    mobileNumber: "",
   });
   const [error, setError] = useState("");
 
@@ -30,6 +31,7 @@ function Signup() {
       username: formData.username,
       email: formData.email,
       password: formData.password,
+      mobileNumber: formData.mobileNumber,
     });
 
     if (success) {
@@ -59,6 +61,7 @@ function Signup() {
               {error}
             </div>
           )}
+
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="text-gray-300 text-sm">
@@ -122,8 +125,23 @@ function Signup() {
                 className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white"
               />
             </div>
+
+            <div>
+              <label htmlFor="mobileNumber" className="text-gray-300 text-sm">
+                Mobile Number
+              </label>
+              <input
+                type="tel"
+                name="mobileNumber"
+                id="mobileNumber"
+                required
+                value={formData.mobileNumber}
+                onChange={handleChange}
+                className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white"
+              />
+            </div>
           </div>
-          // The button part of your form should be modified like this:
+
           <button
             type="submit"
             disabled={loading.signup}

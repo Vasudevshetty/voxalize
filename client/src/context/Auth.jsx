@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async ({ email, password, username }) => {
+  const signup = async ({ email, password, username, mobileNumber }) => {
     setError(null);
     setLoading((prev) => ({ ...prev, signup: true }));
     try {
@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         username,
+        mobileNumber,
       });
       setUser(res.data.user);
       setIsAuthenticated(true);
