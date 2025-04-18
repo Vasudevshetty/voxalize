@@ -93,7 +93,10 @@ async def recommend_queries(request_data: dict):
         Given the following database schema:
         {schema}
         
-        Generate 5 natural language queries that a business user might ask about this database.
+        Generate 10 natural language queries that a business user might ask about this database.
+        Each query should be a single sentence and should be relevant to the schema provided.
+        Avoid complex queries or technical jargon. The query should be simple and understandable.
+        the query should be start with select when coverted to sql query.
         Return them as a JSON array of strings. Each query should be clear and answerable using SQL.
         """
         
