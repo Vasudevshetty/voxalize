@@ -108,7 +108,7 @@ function Graph() {
         </div>
       </div>
 
-      {/* <div className="flex-1 flex flex-col justify-center items-center p-6 text-xl text-gray-400">
+      <div className="flex-1 flex flex-col justify-center items-center p-6 text-xl text-gray-400">
         <div>graph</div>
         <div className="bg-[#181818] w-[75%] max-w-3xl rounded-full flex items-center px-4 py-2 gap-3">
           <div className="text-white text-xl cursor-pointer">
@@ -137,7 +137,7 @@ function Graph() {
             />
           </div>
         </div>
-      </div> */}
+      </div>
 
       {/* Right Sidebar - Databases */}
       {/* <div className="w-80 bg-[#131313] border-l border-gray-800 p-6">
