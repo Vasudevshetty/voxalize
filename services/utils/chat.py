@@ -105,11 +105,22 @@ def chat_db(db_name, host, user, password, database, query):
 
             summary = llm.invoke(summary_prompt).content
 
+            # Add this: generate a short 5–8 word overview
+            overview_prompt = f"""
+            Question: {query}
+            SQL Query: {sql_query}
+            SQL Result: {sql_result_str}
+
+            Please provide a title of these results in 5 to 8 words.
+            """
+            title = llm.invoke(overview_prompt).content
+
             return {
                 "user_query": query,
                 "sql_query": sql_query,
                 "sql_result": sql_result_list if result.returns_rows else "Query executed successfully. No rows returned.",
                 "summary": summary,
+                "title": title,                      # new field
                 "agent_thought_process": thought_process
             }
 
@@ -188,12 +199,23 @@ def chat_db(db_name, host, user, password, database, query):
             """
             
             summary = llm.invoke(summary_prompt).content
+
+            # Add this: generate a short 5–8 word overview
+            overview_prompt = f"""
+            Question: {query}
+            SQL Query: {sql_query}
+            SQL Result: {sql_result_str}
+
+            Please provide a brief overview of these results in 5 to 8 words.
+            """
+            overview = llm.invoke(overview_prompt).content
             
             return {
                 "user_query": query,
                 "sql_query": sql_query,
                 "sql_result": sql_result_list if result.returns_rows else "Query executed successfully. No rows returned.",
                 "summary": summary,
+                "overview": overview,                      # new field
                 "agent_thought_process": thought_process  # Include the thought process
             }
             
