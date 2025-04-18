@@ -8,14 +8,14 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-groq_api_key_2= os.getenv("GROQ_API_KEY")
+groq_api_key_2 = os.getenv("GROQ_API_KEY_2")
 
 api = FastAPI()
 
-client = Groq(api_key="groq_api_key_2")
+client = Groq(api_key=groq_api_key_2)
 
 class DatabaseConfig(BaseModel):
-    dbname : str
+    dbname: str
     host: str
     user: str
     password: str
@@ -33,7 +33,7 @@ def read_root():
 async def chat_with_db(request_data: dict):
     
     if "database_config" not in request_data or "query_request" not in request_data:
-        raise HTTPException(status_code=400, detail="Request must include mysql_config and query_request")
+        raise HTTPException(status_code=400, detail="Request must include database_config and query_request")
     
     db_config_data = request_data["database_config"]
     query_request_data = request_data["query_request"]
@@ -44,29 +44,30 @@ async def chat_with_db(request_data: dict):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid request format: {str(e)}")
     
-    if not query_request.api_key:
-        raise HTTPException(status_code=400, detail="API key is required.")
+    try:
+        db, engine = configure_db(
+            db_config.dbname, db_config.host, db_config.user, 
+            db_config.password, db_config.database
+        )
     
-    return chat_db(
-        db_config.dbname, db_config.host, db_config.user, db_config.password, db_config.database , query_request.query
-    )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        result = chat_db(
+            db_config.dbname, db_config.host, db_config.user, 
+            db_config.password, db_config.database, query_request.query
+        )
+        
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        # If there's an error processing the query, it might not be database-related
+        return {
+            "user_query": query_request.query,
+            "error": "This query doesn't appear to be related to the database. Please try again with a database-related question.",
+            "details": str(e)
+        }
 
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(api, port = 1111)
+    uvicorn.run(api, port=1111)
