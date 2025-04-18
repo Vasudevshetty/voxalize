@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, UploadFile, Form
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from utils.db import configure_db, get_database_schema
 from utils.chat import chat_db
@@ -15,10 +16,23 @@ import re
 import traceback
 load_dotenv()
 
+
 groq_api_key_2 = os.getenv("GROQ_API_KEY_2")
 
-api = FastAPI()
 
+
+
+api = FastAPI()
+client = Groq(api_key=groq_api_key_2)
+
+# Add CORS middleware
+api.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173","https://studysyncs.xyz"],  # Adjust this to restrict origins if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 client = Groq(api_key=groq_api_key_2)
 
 class DatabaseConfig(BaseModel):
