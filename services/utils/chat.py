@@ -7,9 +7,28 @@ from sqlalchemy import text
 import json
 from dotenv import load_dotenv
 import os
+from langchain.callbacks.base import BaseCallbackHandler
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+import io
+import sys
 load_dotenv()
 
-groq_api_key_1= os.getenv("GROQ_API_KEY")
+groq_api_key_1= os.getenv("GROQ_API_KEY_1")
+
+# Custom callback handler to capture agent's thought process
+class CaptureStdoutCallbackHandler(BaseCallbackHandler):
+    def __init__(self):
+        self.thought_process = io.StringIO()
+        self.stdout_backup = sys.stdout
+        
+    def start_capturing(self):
+        sys.stdout = self.thought_process
+        
+    def stop_capturing(self):
+        sys.stdout = self.stdout_backup
+        
+    def get_output(self):
+        return self.thought_process.getvalue()
 
 def chat_db(db_name, host, user, password, database, query):
     if db_name == "postgresql":
@@ -22,12 +41,16 @@ def chat_db(db_name, host, user, password, database, query):
 
             db, engine = configure_db(db_name, host, user, password, database)
 
+            # Setup to capture agent's thought process
+            capture_handler = CaptureStdoutCallbackHandler()
+            capture_handler.start_capturing()
+            
             toolkit = SQLDatabaseToolkit(db=db, llm=llm)
             agent = create_sql_agent(
                 llm=llm,
                 toolkit=toolkit,
                 verbose=True,
-                agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
+                agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
             )
 
             sql_generation_prompt = f"""
@@ -40,23 +63,23 @@ def chat_db(db_name, host, user, password, database, query):
             DO NOT include explanations, markdown formatting, or anything else - ONLY the SQL query itself.
             """
 
+            # Run the agent once and capture all output
             agent_response = agent.run(sql_generation_prompt)
+            
+            # Capture output and restore stdout
+            thought_process = capture_handler.get_output()
+            capture_handler.stop_capturing()
 
+            # Process the result
             try:
                 sql_query = extract_sql_query(agent_response)
                 if not is_valid_sql(sql_query):
                     raise ValueError(f"The generated query doesn't appear to be valid SQL: {sql_query}")
             except ValueError as e:
-                retry_prompt = f"""
-                The previous response didn't contain a valid SQL query. 
-                Please generate a valid SQL query (starting with SELECT, INSERT, etc.) for this question: 
-                "{query}"
-                Return ONLY the SQL query itself, no explanations.
-                """
-                agent_response = agent.run(retry_prompt)
+                # Don't run another chain - try to extract SQL from the original response
                 sql_query = extract_sql_query(agent_response)
                 if not is_valid_sql(sql_query):
-                    raise ValueError(f"Failed to generate valid SQL after retry: {sql_query}")
+                    raise ValueError(f"Failed to generate valid SQL: {sql_query}")
 
             sql_result_list = []
             with engine.connect() as connection:
@@ -87,7 +110,8 @@ def chat_db(db_name, host, user, password, database, query):
                 "user_query": query,
                 "sql_query": sql_query,
                 "sql_result": sql_result_list if result.returns_rows else "Query executed successfully. No rows returned.",
-                "summary": summary
+                "summary": summary,
+                "agent_thought_process": thought_process  # Include the thought process
             }
 
         except Exception as e:
@@ -102,10 +126,12 @@ def chat_db(db_name, host, user, password, database, query):
                 streaming=False
             )
             
+            # Setup to capture agent's thought process
+            capture_handler = CaptureStdoutCallbackHandler()
+            capture_handler.start_capturing()
 
             db, engine = configure_db(db_name, host, user, password, database)
             
-    
             toolkit = SQLDatabaseToolkit(db=db, llm=llm)
             agent = create_sql_agent(
                 llm=llm,
@@ -114,7 +140,6 @@ def chat_db(db_name, host, user, password, database, query):
                 agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
             )
             
-    
             sql_generation_prompt = f"""
             For the following question, generate a valid SQL query to answer it.
             Question: "{query}"
@@ -124,25 +149,23 @@ def chat_db(db_name, host, user, password, database, query):
             If you Cannot find the answer, return "I don't know".
             DO NOT include explanations, markdown formatting, or anything else - ONLY the SQL query itself.
             """
+            
+            # Run the agent once and capture all output
             agent_response = agent.run(sql_generation_prompt)
+            
+            # Capture output and restore stdout
+            thought_process = capture_handler.get_output()
+            capture_handler.stop_capturing()
             
             try:
                 sql_query = extract_sql_query(agent_response)
                 if not is_valid_sql(sql_query):
                     raise ValueError(f"The generated query doesn't appear to be valid SQL: {sql_query}")
             except ValueError as e:
-               
-                retry_prompt = """
-                The previous response didn't contain a valid SQL query. 
-                Please generate a valid SQL query (starting with SELECT, INSERT, etc.) for this question: 
-                "{query_request.query}"
-                
-                Return ONLY the SQL query itself, no explanations.
-                """
-                agent_response = agent.run(retry_prompt)
+                # Don't run another chain - try to extract SQL from the original response
                 sql_query = extract_sql_query(agent_response)
                 if not is_valid_sql(sql_query):
-                    raise ValueError(f"Failed to generate valid SQL after retry: {sql_query}")
+                    raise ValueError(f"Failed to generate valid SQL: {sql_query}")
         
             sql_result_list = []
             with engine.connect() as connection:
@@ -173,7 +196,8 @@ def chat_db(db_name, host, user, password, database, query):
                 "user_query": query,
                 "sql_query": sql_query,
                 "sql_result": sql_result_list if result.returns_rows else "Query executed successfully. No rows returned.",
-                "summary": summary
+                "summary": summary,
+                "agent_thought_process": thought_process  # Include the thought process
             }
             
         except Exception as e:
