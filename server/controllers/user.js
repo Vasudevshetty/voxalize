@@ -4,10 +4,9 @@ const bcrypt = require("bcryptjs");
 // @desc    Get current user info
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .select("-password -resetPasswordToken -resetPasswordExpires")
-      .populate("databases")
-      .populate("sessions");
+    const user = await User.findById(req.user._id).select(
+      "-password -resetPasswordToken -resetPasswordExpires"
+    );
 
     res.status(200).json({ success: true, user });
   } catch (err) {

@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     },
     profileImage: {
       type: String,
-      default: "",
+      default: "/profile.png",
     },
     databases: [{ type: mongoose.Schema.Types.ObjectId, ref: "Database" }],
     sessions: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuerySession" }],
