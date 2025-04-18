@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Form, Query
+from fastapi import FastAPI, HTTPException, UploadFile, Form
 from pydantic import BaseModel, Field
-from utils.db import configure_db, get_database_schema, generate_natural_language_queries
+from utils.db import configure_db, get_database_schema
 from utils.chat import chat_db
 from groq import Groq
 from googletrans import Translator
@@ -9,12 +9,11 @@ from dotenv import load_dotenv
 from pathlib import Path
 import uuid
 from fastapi.responses import FileResponse
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import json
 import re
-load_dotenv()
-
 import traceback
+load_dotenv()
 
 groq_api_key_2 = os.getenv("GROQ_API_KEY_2")
 
@@ -36,6 +35,9 @@ class SearchCompletionsRequest(BaseModel):
     term: str = Field(..., description="The partial search term to find completions for")
     limit: int = Field(10, description="Maximum number of completions to return")
     database_config: Optional[DatabaseConfig] = None
+
+class GraphRecommendationRequest(BaseModel):
+    sql_result_json: List[Dict[str, Any]] = Field(..., description="The result of the SQL query in JSON format (list of dictionaries)")
 
 async def translate_to_english(text: str) -> str:
     translator = Translator()
@@ -257,7 +259,7 @@ async def search_completions(request: SearchCompletionsRequest):
     # Step 3: Call the LLM
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             temperature=0.2,
             max_tokens=256,
             response_format={"type": "json_object"},
@@ -281,6 +283,101 @@ async def search_completions(request: SearchCompletionsRequest):
         completions = [f"Error generating suggestions for '{term}'"]
 
     return {"completions": completions[:limit]}
+
+
+
+@api.post("/graphrecommender")
+async def recommend_graph(request: GraphRecommendationRequest) -> Dict[str, List[str]]:
+    data = request.sql_result_json
+
+    # Validate input
+    if not data or not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        raise HTTPException(status_code=400, detail="Invalid input: Expected a list of dictionaries.")
+
+    # Create a preview (5 rows, capped to 1000 chars)
+    try:
+        data_preview = json.dumps(data[:5], indent=2)
+        total_json_size = len(json.dumps(data))
+        if total_json_size > 1500 and len(data_preview) > 1000:
+            data_preview = data_preview[:1000] + "\n... (data truncated)"
+        elif len(data) > 5:
+            data_preview += "\n... (more rows exist)"
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to process input data preview: {e}")
+
+    # Construct the LLM prompt
+    column_names = list(data[0].keys()) if data else []
+    prompt = (
+        f"Data Preview:\n"
+        f"```json\n{data_preview}\n```\n\n"
+        f"Columns: {column_names}\n\n"
+        f"Based on this dataset, recommend the best graph type for visualization.\n"
+        f"First, provide your primary recommendation as \"Primary: [graph type]\".\n"
+        f"Then, list 2-3 DIFFERENT alternative graph types as \"Alternative: [graph type]\".\n"
+        f"Choose only from these exact graph types (do not modify or combine them): bar, line, pie, area, scatter, heatmap.\n"
+        f"Respond ONLY with the Primary and Alternative recommendations in the specified format." # Added instruction for concise response
+    )
+
+    try:
+        # Query the LLM
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant", # Or a model better suited for structured output if needed
+            temperature=0.2, # Lower temperature for more deterministic output
+            max_tokens=100, # Reduced tokens as the expected output is short
+            # response_format={"type": "json_object"}, # Keep or remove based on whether the new format is reliably JSON
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert data visualization assistant. Recommend graph types based on provided data, following the specific output format."
+                },
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        content = response.choices[0].message.content
+        # --- IMPORTANT: Parsing logic below needs adjustment for the new prompt format ---
+        # The existing parsing logic expects a JSON list. It will likely fail or produce incorrect results
+        # with the new "Primary: ... Alternative: ..." format.
+        # You'll need to implement new parsing logic here using regex or string splitting
+        # to extract the primary and alternative graphs from the 'content' string.
+
+        recommended_graphs: List[str] = [] # Placeholder - needs new parsing logic
+
+        # Example (Conceptual) Parsing Logic - Needs refinement:
+        primary_match = re.search(r"Primary:\s*\[?\"?(\w+)\"?\]?", content)
+        alternative_match = re.search(r"Alternative:\s*\[?\"?([\w,\s\"]+)\"?\]?", content)
+
+        if primary_match:
+            primary_graph = primary_match.group(1)
+            recommended_graphs.append(primary_graph)
+            if alternative_match:
+                alternatives_str = alternative_match.group(1)
+                # Split alternatives, strip quotes and whitespace
+                alternatives = [alt.strip().strip('"') for alt in alternatives_str.split(',')]
+                recommended_graphs.extend(alternatives)
+
+        if not recommended_graphs:
+             print(f"[Warning] Could not parse recommendations from LLM response: {content}")
+             recommended_graphs = ["table"] # Fallback if parsing fails
+
+
+        # --- End of adjusted parsing section ---
+
+
+        # Final cleanup (might still be useful)
+        recommended_graphs = [str(g) for g in recommended_graphs if isinstance(g, (str, int, float))]
+        if not recommended_graphs:
+            print("[Info] No valid graph recommendations parsed. Defaulting to ['table'].")
+            recommended_graphs = ["table"]
+
+
+    except Exception as e:
+        print(f"[Error] LLM failure: {e}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail="Error generating graph recommendations.")
+
+    return {"recommended_graphs": recommended_graphs}
+
+
 if __name__ == "__main__":
     import uvicorn
 
