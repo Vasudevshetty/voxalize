@@ -1,5 +1,10 @@
+import Graph from "./components/Graph";
 function App() {
-  return <div className="">Hello, World!</div>;
+  return (
+    <div className="">
+      <Graph />
+    </div>
+  );
 }
 
 export default App;
