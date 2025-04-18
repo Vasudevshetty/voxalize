@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Graph from "./components/Graph";
 import Home from "./pages/Home";
 import Layout from "./components/Layout";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Chat from "./components/Chat";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/visual" element={<Graph />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/chat" element={<Chat />} />
       </Route>
     </Routes>
   );
