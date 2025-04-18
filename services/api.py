@@ -36,11 +36,11 @@ api.add_middleware(
 client = Groq(api_key=groq_api_key_2)
 
 class DatabaseConfig(BaseModel):
-    dbname: str
+    dbtype: str
     host: str
     user: str
     password: str
-    database: str
+    dbname: str
     
 class QueryRequest(BaseModel):
     query: str
