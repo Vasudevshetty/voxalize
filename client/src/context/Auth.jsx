@@ -25,7 +25,13 @@ export const AuthProvider = ({ children }) => {
     forgotPassword: false,
     resetPassword: false,
   });
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({
+    login: null,
+    signup: null,
+    logout: null,
+    forgotPassword: null,
+    resetPassword: null,
+  });
 
   const checkAuth = async () => {
     try {
@@ -45,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async ({ email, password }) => {
-    setError(null);
+    setErrors((prev) => ({ ...prev, login: null }));
     setLoading((prev) => ({ ...prev, login: true }));
     try {
       const res = await api.post("/api/v1/auth/login", { email, password });
@@ -54,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (err) {
       const message = err?.response?.data?.message || "Login failed.";
-      setError(message);
+      setErrors((prev) => ({ ...prev, login: message }));
       setIsAuthenticated(false);
       return { success: false, message };
     } finally {
@@ -63,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async ({ email, password, username, mobileNumber }) => {
-    setError(null);
+    setErrors((prev) => ({ ...prev, signup: null }));
     setLoading((prev) => ({ ...prev, signup: true }));
     try {
       const res = await api.post("/api/v1/auth/signup", {
@@ -77,7 +83,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (err) {
       const message = err?.response?.data?.message || "Signup failed.";
-      setError(message);
+      setErrors((prev) => ({ ...prev, signup: message }));
       return { success: false, message };
     } finally {
       setLoading((prev) => ({ ...prev, signup: false }));
@@ -87,12 +93,13 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     setLoading((prev) => ({ ...prev, logout: true }));
     try {
-      await api.post("/api/v1/auth/logout");
+      await api.get("/api/v1/auth/logout");
       setUser(null);
       setIsAuthenticated(false);
       return { success: true };
     } catch (err) {
       const message = err?.response?.data?.message || "Logout failed.";
+      setErrors((prev) => ({ ...prev, logout: message }));
       return { success: false, message };
     } finally {
       setLoading((prev) => ({ ...prev, logout: false }));
@@ -100,7 +107,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const forgotPassword = async (email) => {
-    setError(null);
+    setErrors((prev) => ({ ...prev, forgotPassword: null }));
     setLoading((prev) => ({ ...prev, forgotPassword: true }));
     try {
       await api.post("/api/v1/auth/forgot-password", { email });
@@ -108,7 +115,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       const message =
         err?.response?.data?.message || "Failed to send reset email.";
-      setError(message);
+      setErrors((prev) => ({ ...prev, forgotPassword: message }));
       return { success: false, message };
     } finally {
       setLoading((prev) => ({ ...prev, forgotPassword: false }));
@@ -116,7 +123,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resetPassword = async ({ token, password }) => {
-    setError(null);
+    setErrors((prev) => ({ ...prev, resetPassword: null }));
     setLoading((prev) => ({ ...prev, resetPassword: true }));
     try {
       await api.post(`/api/v1/auth/reset-password/${token}`, { password });
@@ -124,7 +131,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       const message =
         err?.response?.data?.message || "Failed to reset password.";
-      setError(message);
+      setErrors((prev) => ({ ...prev, resetPassword: message }));
       return { success: false, message };
     } finally {
       setLoading((prev) => ({ ...prev, resetPassword: false }));
@@ -135,7 +142,7 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated,
     loading,
-    error,
+    errors, // Provide the individual error states
     login,
     signup,
     logout,

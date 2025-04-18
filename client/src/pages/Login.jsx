@@ -4,7 +4,7 @@ import { useAuth } from "../context/Auth";
 
 function Login() {
   const navigate = useNavigate();
-  const { login, loading } = useAuth();
+  const { login, loading, errors } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,15 +19,13 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { success, message } = await login({
+    await login({
       email: formData.email,
       password: formData.password,
     });
 
-    if (success) {
-      navigate("/visual");
-    } else {
-      setError(message || "Login failed");
+    if (!errors?.login) {
+      navigate("/dashboard");
     }
   };
 
@@ -46,9 +44,9 @@ function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
+          {(error || errors?.login) && (
             <div className="text-red-500 text-sm text-center bg-red-500/10 py-2 rounded">
-              {error}
+              {error || errors.login}
             </div>
           )}
           <div className="space-y-4">

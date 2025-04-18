@@ -4,7 +4,7 @@ import { useAuth } from "../context/Auth"; // Adjust the path based on your proj
 
 function Signup() {
   const navigate = useNavigate();
-  const { signup, loading } = useAuth();
+  const { signup, loading, errors } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -13,31 +13,86 @@ function Signup() {
     mobileNumber: "",
   });
   const [error, setError] = useState("");
+  const [formErrors, setFormErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    mobileNumber: "",
+  });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError("");
+    setError(""); // Clear general error on input change
+    setFormErrors({ ...formErrors, [e.target.name]: "" }); // Clear specific input error
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const errors = { ...formErrors };
+
+    // Username validation (can be extended with regex or length check)
+    if (!formData.username) {
+      errors.username = "Username is required.";
+      isValid = false;
+    }
+
+    // Email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!formData.email) {
+      errors.email = "Email is required.";
+      isValid = false;
+    } else if (!emailRegex.test(formData.email)) {
+      errors.email = "Please enter a valid email address.";
+      isValid = false;
+    }
+
+    // Password validation
+    if (!formData.password) {
+      errors.password = "Password is required.";
+      isValid = false;
+    } else if (formData.password.length < 6) {
+      errors.password = "Password should be at least 6 characters.";
+      isValid = false;
+    }
+
+    // Confirm Password validation
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = "Please confirm your password.";
+      isValid = false;
+    } else if (formData.confirmPassword !== formData.password) {
+      errors.confirmPassword = "Passwords do not match.";
+      isValid = false;
+    }
+
+    // Mobile Number validation (simple length check or regex can be used)
+    if (!formData.mobileNumber) {
+      errors.mobileNumber = "Mobile number is required.";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
+    // Perform form validation
+    if (!validateForm()) {
+      return; // Prevent submission if form is invalid
     }
 
-    const { success, message } = await signup({
+    await signup({
       username: formData.username,
       email: formData.email,
       password: formData.password,
       mobileNumber: formData.mobileNumber,
     });
 
-    if (success) {
+    // The errors will be handled through the errors object from useAuth
+    if (!errors?.signup) {
       navigate("/visual");
-    } else {
-      setError(message || "Signup failed");
     }
   };
 
@@ -56,13 +111,14 @@ function Signup() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
+          {(error || errors?.signup) && (
             <div className="text-red-500 text-sm text-center bg-red-500/10 py-2 rounded">
-              {error}
+              {error || errors.signup}
             </div>
           )}
 
           <div className="space-y-4">
+            {/* Username */}
             <div>
               <label htmlFor="username" className="text-gray-300 text-sm">
                 Username
@@ -74,10 +130,16 @@ function Signup() {
                 required
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white"
+                className={`w-full bg-[#1a1a1a] border ${
+                  formErrors.username ? "border-red-500" : "border-gray-800"
+                } rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white`}
               />
+              {formErrors.username && (
+                <p className="text-red-500 text-sm">{formErrors.username}</p>
+              )}
             </div>
 
+            {/* Email */}
             <div>
               <label htmlFor="email" className="text-gray-300 text-sm">
                 Email
@@ -89,10 +151,16 @@ function Signup() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white"
+                className={`w-full bg-[#1a1a1a] border ${
+                  formErrors.email ? "border-red-500" : "border-gray-800"
+                } rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white`}
               />
+              {formErrors.email && (
+                <p className="text-red-500 text-sm">{formErrors.email}</p>
+              )}
             </div>
 
+            {/* Password */}
             <div>
               <label htmlFor="password" className="text-gray-300 text-sm">
                 Password
@@ -104,10 +172,16 @@ function Signup() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white"
+                className={`w-full bg-[#1a1a1a] border ${
+                  formErrors.password ? "border-red-500" : "border-gray-800"
+                } rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white`}
               />
+              {formErrors.password && (
+                <p className="text-red-500 text-sm">{formErrors.password}</p>
+              )}
             </div>
 
+            {/* Confirm Password */}
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -122,10 +196,20 @@ function Signup() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white"
+                className={`w-full bg-[#1a1a1a] border ${
+                  formErrors.confirmPassword
+                    ? "border-red-500"
+                    : "border-gray-800"
+                } rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white`}
               />
+              {formErrors.confirmPassword && (
+                <p className="text-red-500 text-sm">
+                  {formErrors.confirmPassword}
+                </p>
+              )}
             </div>
 
+            {/* Mobile Number */}
             <div>
               <label htmlFor="mobileNumber" className="text-gray-300 text-sm">
                 Mobile Number
@@ -137,8 +221,15 @@ function Signup() {
                 required
                 value={formData.mobileNumber}
                 onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white"
+                className={`w-full bg-[#1a1a1a] border ${
+                  formErrors.mobileNumber ? "border-red-500" : "border-gray-800"
+                } rounded-lg px-4 py-2 mt-1 focus:outline-none focus:border-cyan-400 text-white`}
               />
+              {formErrors.mobileNumber && (
+                <p className="text-red-500 text-sm">
+                  {formErrors.mobileNumber}
+                </p>
+              )}
             </div>
           </div>
 
