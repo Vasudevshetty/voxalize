@@ -31,7 +31,7 @@ app.get("/api/v1", (req, res) => {
 });
 
 app.use("/api/v1/auth", require("./routes/auth"));
-app.use("/api/v1/user", require("./routes/user"));
+app.use("/api/v1/users", require("./routes/user"));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -92,7 +92,7 @@ function Signup() {
 
     // The errors will be handled through the errors object from useAuth
     if (!errors?.signup) {
-      navigate("/visual");
+      navigate("/dashboard");
     }
   };
 

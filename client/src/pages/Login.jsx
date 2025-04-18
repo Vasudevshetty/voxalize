@@ -120,7 +120,7 @@ function Login() {
             <p>
               Don't have an account?{" "}
               <Link
-                to="/signup"
+                to="/auth/signup"
                 className="text-cyan-400 hover:text-cyan-300 transition-colors"
               >
                 Sign up
