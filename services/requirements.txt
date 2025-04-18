@@ -1,0 +1,15 @@
+langchain
+langchain_groq
+sqlalchemy
+fastapi
+uvicorn 
+langchain-community
+pydantic
+mysql-connector-python
+mysqlclient
+sqlparse
+pymongo
+psycopg2-binary
+googletrans
+python-multipart
+pandas
