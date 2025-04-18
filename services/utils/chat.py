@@ -5,13 +5,17 @@ from langchain_community.agent_toolkits.sql.base import create_sql_agent, SQLDat
 from langchain.agents.agent_types import AgentType
 from sqlalchemy import text
 import json
-import re
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-def chat_db(db_name, host, user, password, database, api_key, query):
+groq_api_key_1= os.getenv("GROQ_API_KEY")
+
+def chat_db(db_name, host, user, password, database, query):
     if db_name == "postgresql":
         try:
             llm = ChatGroq(
-                groq_api_key=api_key,
+                groq_api_key=groq_api_key_1,
                 model_name="llama-3.3-70b-versatile",
                 streaming=False
             )
@@ -93,15 +97,15 @@ def chat_db(db_name, host, user, password, database, api_key, query):
     elif db_name=="mysql":
         try:
             llm = ChatGroq(
-                groq_api_key=api_key,
+                groq_api_key=groq_api_key_1,
                 model_name="llama-3.3-70b-versatile",
                 streaming=False
             )
             
-            # Configure the database
+
             db, engine = configure_db(db_name, host, user, password, database)
             
-            # Create the toolkit and agent
+    
             toolkit = SQLDatabaseToolkit(db=db, llm=llm)
             agent = create_sql_agent(
                 llm=llm,
@@ -110,7 +114,7 @@ def chat_db(db_name, host, user, password, database, api_key, query):
                 agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
             )
             
-            # Build a more specific prompt to get a proper SQL query
+    
             sql_generation_prompt = f"""
             For the following question, generate a valid SQL query to answer it.
             Question: "{query}"
