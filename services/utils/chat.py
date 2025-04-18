@@ -8,7 +8,6 @@ import json
 from dotenv import load_dotenv
 import os
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import io
 import sys
 load_dotenv()
@@ -126,7 +125,6 @@ def chat_db(db_name, host, user, password, database, query):
                 streaming=False
             )
             
-            # Setup to capture agent's thought process
             capture_handler = CaptureStdoutCallbackHandler()
             capture_handler.start_capturing()
 
