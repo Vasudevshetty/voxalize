@@ -66,6 +66,66 @@ async def chat_with_db(request_data: dict):
             "details": str(e)
         }
 
+@api.post("/recommend")
+async def recommend_queries(request_data: dict):
+    if "database_config" not in request_data:
+        raise HTTPException(status_code=400, detail="Request must include database_config")
+    
+    data_config_data = request_data["database_config"]
+    try:
+        db_config = DatabaseConfig(**data_config_data)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid request format: {str(e)}")
+    
+    try:
+        _, engine = configure_db(db_config.dbname, db_config.host, db_config.user, db_config.password, db_config.database)
+        
+        schema = get_database_schema(engine)
+        
+        prompt = f"""
+        Given the following database schema:
+        {schema}
+        
+        Generate 5 natural language queries that a business user might ask about this database.
+        Return them as a JSON array of strings. Each query should be clear and answerable using SQL.
+        """
+        
+        response = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a database expert that helps generate natural language queries."},
+                {"role": "user", "content": prompt}
+            ],
+            model="llama-3.3-70b-versatile", 
+            temperature=0.7,
+            max_tokens=1024
+        )
+        
+        # Extract and parse the recommended queries from the LLM response
+        llm_response = response.choices[0].message.content
+        import json
+        try:
+            # First try to parse directly if the response is already JSON
+            recommended_queries = json.loads(llm_response)
+        except json.JSONDecodeError:
+            # If not JSON, try to extract JSON part from text
+            import re
+            json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
+            if json_match:
+                recommended_queries = json.loads(json_match.group(0))
+            else:
+                # Fallback: split by newlines and clean up
+                recommended_queries = [q.strip().strip('"').strip("'") for q in llm_response.split('\n') if q.strip()]
+        
+        return {
+            "recommended_queries": recommended_queries
+        }
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        raise HTTPException(status_code=500, detail=f"Error processing recommendation: {str(e)}\n{error_details}")
+
+
 
 if __name__ == "__main__":
     import uvicorn

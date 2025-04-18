@@ -8,7 +8,7 @@ def configure_db(db_name, host, user, password, database):
     if db_name == "mysql": 
         try:
             conn_string = f"mysql+mysqlconnector://{user}:{password}@{host}/{database}"
-            engine = create_engine(conn_string, connect_args={"read_only": True})
+            engine = create_engine(conn_string)
             return SQLDatabase(engine), engine
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Database connection error: {str(e)}")
