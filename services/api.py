@@ -229,7 +229,7 @@ async def search_completions(request: SearchCompletionsRequest):
     term, limit, config = request.term, request.limit, request.database_config
     completions, schema = [], None
 
-    # Step 1: Retrieve schema if database config is provided
+    
     if config:
         try:
             _, engine = configure_db(
@@ -239,7 +239,7 @@ async def search_completions(request: SearchCompletionsRequest):
         except Exception as e:
             print(f"[Warning] Failed to load DB schema: {e}")
 
-    # Step 2: Create prompt based on schema presence
+    
     if schema:
         prompt = (
             f"Given the following database schema:\n{schema}\n\n"
@@ -256,7 +256,7 @@ async def search_completions(request: SearchCompletionsRequest):
             f"Output as a JSON list of strings."
         )
 
-    # Step 3: Call the LLM
+    
     try:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
@@ -290,11 +290,11 @@ async def search_completions(request: SearchCompletionsRequest):
 async def recommend_graph(request: GraphRecommendationRequest) -> Dict[str, List[str]]:
     data = request.sql_result_json
 
-    # Validate input
+    
     if not data or not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
         raise HTTPException(status_code=400, detail="Invalid input: Expected a list of dictionaries.")
 
-    # Create a preview (5 rows, capped to 1000 chars)
+    
     try:
         data_preview = json.dumps(data[:5], indent=2)
         total_json_size = len(json.dumps(data))
@@ -305,7 +305,7 @@ async def recommend_graph(request: GraphRecommendationRequest) -> Dict[str, List
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to process input data preview: {e}")
 
-    # Construct the LLM prompt
+    
     column_names = list(data[0].keys()) if data else []
     prompt = (
         f"Data Preview:\n"
@@ -315,16 +315,16 @@ async def recommend_graph(request: GraphRecommendationRequest) -> Dict[str, List
         f"First, provide your primary recommendation as \"Primary: [graph type]\".\n"
         f"Then, list 2-3 DIFFERENT alternative graph types as \"Alternative: [graph type]\".\n"
         f"Choose only from these exact graph types (do not modify or combine them): bar, line, pie, area, scatter, heatmap.\n"
-        f"Respond ONLY with the Primary and Alternative recommendations in the specified format." # Added instruction for concise response
+        f"Respond ONLY with the Primary and Alternative recommendations in the specified format." 
     )
 
     try:
-        # Query the LLM
+        
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant", # Or a model better suited for structured output if needed
-            temperature=0.2, # Lower temperature for more deterministic output
-            max_tokens=100, # Reduced tokens as the expected output is short
-            # response_format={"type": "json_object"}, # Keep or remove based on whether the new format is reliably JSON
+            model="llama-3.1-8b-instant", 
+            temperature=0.2, 
+            max_tokens=100, 
+            
             messages=[
                 {
                     "role": "system",
@@ -335,15 +335,14 @@ async def recommend_graph(request: GraphRecommendationRequest) -> Dict[str, List
         )
 
         content = response.choices[0].message.content
-        # --- IMPORTANT: Parsing logic below needs adjustment for the new prompt format ---
-        # The existing parsing logic expects a JSON list. It will likely fail or produce incorrect results
-        # with the new "Primary: ... Alternative: ..." format.
-        # You'll need to implement new parsing logic here using regex or string splitting
-        # to extract the primary and alternative graphs from the 'content' string.
+        
+        
+        
+        
 
-        recommended_graphs: List[str] = [] # Placeholder - needs new parsing logic
+        recommended_graphs: List[str] = [] 
 
-        # Example (Conceptual) Parsing Logic - Needs refinement:
+        
         primary_match = re.search(r"Primary:\s*\[?\"?(\w+)\"?\]?", content)
         alternative_match = re.search(r"Alternative:\s*\[?\"?([\w,\s\"]+)\"?\]?", content)
 
@@ -352,19 +351,19 @@ async def recommend_graph(request: GraphRecommendationRequest) -> Dict[str, List
             recommended_graphs.append(primary_graph)
             if alternative_match:
                 alternatives_str = alternative_match.group(1)
-                # Split alternatives, strip quotes and whitespace
+                
                 alternatives = [alt.strip().strip('"') for alt in alternatives_str.split(',')]
                 recommended_graphs.extend(alternatives)
 
         if not recommended_graphs:
              print(f"[Warning] Could not parse recommendations from LLM response: {content}")
-             recommended_graphs = ["table"] # Fallback if parsing fails
+             recommended_graphs = ["table"] 
 
 
-        # --- End of adjusted parsing section ---
+        
 
 
-        # Final cleanup (might still be useful)
+        
         recommended_graphs = [str(g) for g in recommended_graphs if isinstance(g, (str, int, float))]
         if not recommended_graphs:
             print("[Info] No valid graph recommendations parsed. Defaulting to ['table'].")
