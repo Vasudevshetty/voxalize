@@ -1,0 +1,60 @@
+name: Deploy Frontend and Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up SSH
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Step 3: Deploy to VPS
+      - name: Deploy to VPS
+        env:
+          NODE_ENV: production
+        run: |
+          ssh -o StrictHostKeyChecking=no vasudevshetty@server.fauxigent.com << 'EOF'
+            set -e # Exit on errors
+
+            echo "Navigating to project directory..."
+            cd /home/vasudevshetty/projects/voxalize/
+
+            echo "Pulling the latest code from main branch..."
+            git pull origin main
+
+            echo "Installing frontend dependencies and building the project..."
+            cd client
+            npm install
+            npm run build
+
+            echo "Navigating to backend directory..."
+            cd ../server
+
+            echo "Installing backend dependencies..."
+            npm install
+
+            echo "Navigating to chatbot directory..."
+            cd ../services
+            source venv/bin/activate
+            pip install -r requirements.txt
+
+            echo "Restarting backend with PM2..."
+            pm2 reload voxalize-backend
+            pm2 reload voxalize-service
+            pm2 save
+
+            echo "Deployment complete!"
+          EOF
