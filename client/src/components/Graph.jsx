@@ -38,17 +38,23 @@ function Graph() {
   return (
     <div className="bg-black min-h-screen flex text-white overflow-hidden font-sans">
       {/* Left Sidebar - Static History */}
-      <div className="w-80 bg-[#131313] border-r border-gray-800 p-6 flex flex-col">
+      <div className="w-80 bg-[#131313] border-r border-gray-800 p-6 flex flex-col ">
         <div className="flex justify-between mb-12">
-          <IoIosArrowBack size={32} />
-          <MdOutlineMenuOpen size={32} />
+          <div className="cursor-pointer">
+            <IoIosArrowBack size={32} />
+          </div>
+          <div className="cursor-pointer">
+            <MdOutlineMenuOpen size={32} />
+          </div>
         </div>
 
         <div className="text-center tracking-widest">
           <GradientTitle />
         </div>
         <div className="mt-6">
-          <p className="text-sm text-gray-400 mb-3">Today</p>
+          <p className="text-lg font-semibold tracking-widest text-gray-400 mb-3">
+            Today
+          </p>
           <div className="space-y-2">
             {historyItems.map((item) => {
               const isSelected = selectedHistoryId === item.id;
@@ -112,29 +118,23 @@ function Graph() {
         <div>graph</div>
         <div className="bg-[#181818] w-[75%] max-w-3xl rounded-full flex items-center px-4 py-2 gap-3">
           <div className="text-white text-xl cursor-pointer">
-            <FaSearch />
+            <div className="cursor-pointer">
+              <FaSearch size={24} />
+            </div>
           </div>
 
           <input
             type="text"
             placeholder="Type here"
-            className="flex-1 bg-transparent outline-none text-white placeholder:text-gray-400 text-sm"
+            className="flex-1 bg-transparent outline-none text-white placeholder:text-gray-400 text-lg"
           />
 
           <div className="bg-black rounded-full p-2 cursor-pointer">
-            <img
-              src="https://s3-alpha-sig.figma.com/img/73fc/cfc6/83796efaf541d8afcf99c3ca8411c147?Expires=1745798400&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=f~5mrDOfaM0ijD7KCP7NRK8PDplbt~SfA5oaswjHSPIVYP0EWkXakkM4BmAJyEuEIj1Hghl0Jyl7y9WR9Z2YZnweO63rJl3tGOclTOM5AJjgv40OBv0sO3hjcCPgoTKGLwX6oUeNcCNC-A9PrdauxUCwza0JYI2zNdf2mLGkyybkS1wvpUEJ5yN1gOgABCWk-7APu1CsOpocF8cg2dYpnwuEqkQPnmc2KPwBmpdBAxDc2XPITczpR5XIB7hrb2ns7G6Y0VMTGxhDQTNUd--i-G3sKrJzkqMAStermEsRqhmp8nc4BUJ04QZvXnyR4Lm8RjEUGLbJEcpeTLypq9vLfw__"
-              className="h-6 w-6"
-              alt="Mic"
-            />
+            <img src="/voice.png" className="h-10 w-10" alt="Mic" />
           </div>
 
           <div className="flex items-center gap-2 cursor-pointer">
-            <img
-              src="https://s3-alpha-sig.figma.com/img/ab51/5ce5/141ad06b28a2f2b2e8331688b611838e?Expires=1745798400&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=oEb4D4iGo2RNW4rQ~kJU0Ia4yxJdkOBDtBkbQ8QNRF90xq-TDztEiWvj8Jmz2OroXPzdPFI2O1hDxjRVGGPB2u8CvYzLvMoj7I2ljG3QSn5WAeTAJ5ADjSPrnjFlWMwM2BIarQRcjuVBa~5Hh03ONqTCsoybpsN59Q5ZAz~KTWjTadDroSE0e11cPjZqjzGDlpk0ixPR33e-vIAprHq9QBNTD2XLecA2b9-NJnyJeXOeN13dSNjGy-en3o04~ieRzeM4nzIktxwZlexlbJwqg1rHvGkg0XaJPKWVPwD9aw~URL2EkLBvdfZWWyqhmwHEyVJXUCmdeJG0bdLuWf08lA__"
-              className="h-6 w-6"
-              alt="Icon 1"
-            />
+            <img src="/translate.png" className="h-10 w-10" alt="Icon 1" />
           </div>
         </div>
       </div>
@@ -150,11 +150,11 @@ function Graph() {
                 key={num}
                 onClick={() => setSelectedDatabase(num)}
                 className={`flex items-center justify-between p-4 rounded-xl w-full text-left transition-all duration-200 
-                ${
-                  isSelected
-                    ? "bg-gradient-to-r from-[#00FF6F]/10 to-transparent border border-[#00FF6F]/40 shadow-md scale-[1.02]"
-                    : "bg-[#1a1a1a] hover:bg-[#222]"
-                }`}
+          ${
+            isSelected
+              ? "bg-gradient-to-r from-[#00FF6F]/10 to-transparent border border-[#00FF6F]/40 shadow-md scale-[1.02]"
+              : "bg-[#1a1a1a] hover:bg-[#222]"
+          }`}
               >
                 <span
                   className={`text-base ${
@@ -164,11 +164,13 @@ function Graph() {
                   Database {num}
                 </span>
                 <div className="w-8 h-6 flex items-center justify-center">
-                  <div
-                    className={`w-6 h-6 rounded-full transition-all duration-200 ${
-                      isSelected ? "bg-[#00FF6F]" : "bg-[#1e3e2c]"
+                  <img
+                    src="/database.png"
+                    className={`p-1 transition-opacity duration-300 ${
+                      isSelected ? "opacity-100" : "opacity-20"
                     }`}
-                  ></div>
+                    alt={`Database ${num}`}
+                  />
                 </div>
               </button>
             );
