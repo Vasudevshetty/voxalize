@@ -24,6 +24,11 @@ class DatabaseConfig(BaseModel):
 class QueryRequest(BaseModel):
     query: str
 
+async def translate_to_english(text: str) -> str:
+    translator = Translator()
+    translated = await translator.translate(text, dest='en')
+    return translated.text
+
 @api.get("/")  
 def read_root():   
     return {"Hello": "World"}
@@ -59,7 +64,6 @@ async def chat_with_db(request_data: dict):
     except HTTPException as e:
         raise e
     except Exception as e:
-        # If there's an error processing the query, it might not be database-related
         return {
             "user_query": query_request.query,
             "error": "This query doesn't appear to be related to the database. Please try again with a database-related question.",
@@ -100,20 +104,19 @@ async def recommend_queries(request_data: dict):
             max_tokens=1024
         )
         
-        # Extract and parse the recommended queries from the LLM response
         llm_response = response.choices[0].message.content
         import json
         try:
-            # First try to parse directly if the response is already JSON
+
             recommended_queries = json.loads(llm_response)
         except json.JSONDecodeError:
-            # If not JSON, try to extract JSON part from text
+        
             import re
             json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
             if json_match:
                 recommended_queries = json.loads(json_match.group(0))
             else:
-                # Fallback: split by newlines and clean up
+            
                 recommended_queries = [q.strip().strip('"').strip("'") for q in llm_response.split('\n') if q.strip()]
         
         return {
@@ -125,6 +128,40 @@ async def recommend_queries(request_data: dict):
         error_details = traceback.format_exc()
         raise HTTPException(status_code=500, detail=f"Error processing recommendation: {str(e)}\n{error_details}")
 
+
+@api.post("/speech-to-text")
+async def speech_to_text(file: UploadFile,language: str = Form("en")):
+    try:
+        temp_filename = f"temp_{file.filename}"
+        with open(temp_filename, "wb") as temp_file:
+            temp_file.write(await file.read())
+
+        with open(temp_filename, "rb") as audio_file:
+            transcription = client.audio.transcriptions.create(
+                file=(temp_filename, audio_file.read()),
+                model="whisper-large-v3",
+                response_format="verbose_json",
+                language=language
+            )
+
+        os.remove(temp_filename)
+
+        return {
+            "transcription": transcription.text,
+            "detected_language": transcription.language if hasattr(transcription, "language") else language
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing audio file: {str(e)}")
+
+@api.post("/translate")
+async def translate(text: str):
+    try:
+        translated_text = await translate_to_english(text)
+        return {"original_text": text, "translated_text": translated_text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error translating text: {str(e)}")
+    
 
 
 if __name__ == "__main__":
