@@ -23,13 +23,14 @@ function Home() {
       </div>
 
       {/* Mic Control */}
-      <div className="flex items-center justify-between w-58 bg-[#1a1a1a] rounded-full px-6 py-3 relative shadow-lg">
+      <div className="h-96  text-white border w-full ">DEMO PART</div>
+      {/* <div className="flex items-center justify-between w-58 bg-[#1a1a1a] rounded-full px-6 py-3 relative shadow-lg">
         <FaSearch size={26} className="text-gray-400 text-lg" />
         <div className="w-16 h-16  bg-black rounded-full flex items-center justify-center shadow-lg">
           <FaMicrophone size={36} className="text-blue-500 text-xl " />
         </div>
         <FaLanguage size={26} className="text-gray-400 text-lg" />
-      </div>
+      </div> */}
 
       {/* Horizontal line */}
       <div className="w-full border-t-2 border-[#3a3a3a]  max-w-4xl"></div>
@@ -55,7 +56,7 @@ function Home() {
             impact.
           </p>
           <Link
-            to="/visual"
+            to="/signup"
             className="inline-block mt-3 px-8 py-2 bg-gradient-to-r from-green-400 to-cyan-500 text-black font-semibold rounded-full shadow hover:scale-105 transition-transform"
           >
             Try Now!

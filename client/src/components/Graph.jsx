@@ -2,6 +2,7 @@ import { FaSearch } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineMenuOpen } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 function Graph() {
   const [selectedDatabase, setSelectedDatabase] = useState(1);
@@ -40,9 +41,9 @@ function Graph() {
       {/* Left Sidebar - Static History */}
       <div className="w-80 bg-[#131313] border-r border-gray-800 p-6 flex flex-col ">
         <div className="flex justify-between mb-12">
-          <div className="cursor-pointer">
+          <Link to="/" className="cursor-pointer">
             <IoIosArrowBack size={32} />
-          </div>
+          </Link>
           <div className="cursor-pointer">
             <MdOutlineMenuOpen size={32} />
           </div>

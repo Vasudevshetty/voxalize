@@ -8,7 +8,7 @@ import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import NotFound from "./pages/NotFound";
-
+import Chat from "./components/Chat";
 function App() {
   return (
     <Routes>
@@ -48,6 +48,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/chat" element={<Chat />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
