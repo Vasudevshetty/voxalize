@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, Form
 from pydantic import BaseModel
-from utils.db import configure_db, get_database_schema, generate_natural_language_queries
+from utils.db import configure_db, get_database_schema
 from utils.chat import chat_db
 from groq import Groq
 from googletrans import Translator
@@ -167,9 +167,6 @@ async def translate(text: str):
     
 @api.post("/text-to-speech")
 async def text_to_speech(text: str, voice: str = Form("Aaliyah-PlayAI")):
-    """
-    Converts text to speech using Groq's API and returns the audio file.
-    """
     try:
         unique_id = str(uuid.uuid4())
         output_dir = Path("speech_output")
@@ -186,15 +183,18 @@ async def text_to_speech(text: str, voice: str = Form("Aaliyah-PlayAI")):
         
    
         try:
-             with open(speech_file_path, "wb") as f:
-                
-                 response.write_to_file(speech_file_path) 
+            with open(speech_file_path, "wb") as f:
+                response.write_to_file(speech_file_path)
 
         except AttributeError:
-             try:
-                 response.stream_to_file(speech_file_path)
-             except AttributeError as e:
-                 raise AttributeError(f"Groq response object does not have expected methods ('write_to_file' or 'stream_to_file'). Error: {e}")
+            try:
+                response.stream_to_file(speech_file_path)
+            except AttributeError as e:
+                raise AttributeError(f"Groq response object does not have expected methods ('write_to_file' or 'stream_to_file'). Error: {e}")
+
+        finally:
+            if speech_file_path.exists():
+                os.remove(speech_file_path)
 
         return FileResponse(
             path=speech_file_path,

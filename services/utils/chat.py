@@ -110,7 +110,7 @@ def chat_db(db_name, host, user, password, database, query):
                 "sql_query": sql_query,
                 "sql_result": sql_result_list if result.returns_rows else "Query executed successfully. No rows returned.",
                 "summary": summary,
-                "agent_thought_process": thought_process  # Include the thought process
+                "agent_thought_process": thought_process
             }
 
         except Exception as e:
@@ -148,10 +148,9 @@ def chat_db(db_name, host, user, password, database, query):
             DO NOT include explanations, markdown formatting, or anything else - ONLY the SQL query itself.
             """
             
-            # Run the agent once and capture all output
-            agent_response = agent.run(sql_generation_prompt)
             
-            # Capture output and restore stdout
+            agent_response = agent.run(sql_generation_prompt)
+           
             thought_process = capture_handler.get_output()
             capture_handler.stop_capturing()
             
@@ -160,7 +159,7 @@ def chat_db(db_name, host, user, password, database, query):
                 if not is_valid_sql(sql_query):
                     raise ValueError(f"The generated query doesn't appear to be valid SQL: {sql_query}")
             except ValueError as e:
-                # Don't run another chain - try to extract SQL from the original response
+                
                 sql_query = extract_sql_query(agent_response)
                 if not is_valid_sql(sql_query):
                     raise ValueError(f"Failed to generate valid SQL: {sql_query}")
