@@ -33,7 +33,7 @@ def chat_db(db_name, host, user, password, database, query):
     if db_name == "postgresql":
         try:
             llm = ChatGroq(
-                groq_api_key=groq_api_key_1,
+                groq_api_key=groq_api_key_3,
                 model_name="llama-3.3-70b-versatile",
                 streaming=False
             )
@@ -131,7 +131,7 @@ def chat_db(db_name, host, user, password, database, query):
     elif db_name=="mysql":
         try:
             llm = ChatGroq(
-                groq_api_key=groq_api_key_1,
+                groq_api_key=groq_api_key_3,
                 model_name="llama-3.3-70b-versatile",
                 streaming=False
             )
