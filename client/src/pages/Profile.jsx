@@ -143,7 +143,7 @@ function Profile() {
   );
 
   const profileImageSection = (
-    <div className="relative w-32 h-32 mx-auto mb-6 overflo">
+    <div className="relative w-32 h-32 mx-auto mb-6 ">
       <img
         src={
           import.meta.env.VITE_APP_BACKEND_URL + profile?.profileImage ||
@@ -179,12 +179,12 @@ function Profile() {
   );
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-b from-black to-gray-900 flex flex-col">
+    <div className="h-screen max-w-screen overflow-hidden bg-gradient-to-b from-black to-gray-900 flex flex-col">
       {/* Header - Fixed height */}
       <div className="p-3 bg-[#0a1a1a] border-b border-gray-800">
-        <div className="max-w-2xl mx-auto flex justify-between items-center">
-          <h2 className="text-3xl font-bold">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-cyan-400">
+        <div className="w-full mx-auto  flex justify-between  items-center">
+          <h2 className="text-xl ml-20 md:text-3xl font-bold">
+            <span className="bg-clip-text  text-transparent bg-gradient-to-r from-green-400 to-cyan-400">
               Profile Settings
             </span>
           </h2>
@@ -194,22 +194,21 @@ function Profile() {
               transition-colors duration-300 rounded-lg"
           >
             <HiOutlineLogout size={20} />
-            <span className="text-sm">Logout</span>
+            <span className="text-sm hidden md:block">Logout</span>
           </button>
         </div>
       </div>
 
       {/* Main Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto p-8">
+        <div className="max-w-2xl mx-auto p-2  md:p-8">
           <div
-            className="space-y-8 bg-[#0a1a1a]/50 rounded-xl p-8 backdrop-blur-sm
+            className="space-y-8 bg-[#0a1a1a]/50 rounded-xl p-2 md:p-8 backdrop-blur-sm
           border border-gray-800/50 shadow-xl"
           >
             {/* Profile Image Section */}
             {profileImageSection}
 
-            {/* Profile Info Section */}
             <div className="space-y-4">
               {["username", "email", "mobileNumber"].map((field, idx) => {
                 const icons = [<FaUser />, <FaEnvelope />, <FaPhone />];
@@ -217,10 +216,13 @@ function Profile() {
                 return (
                   <div
                     key={field}
-                    className="flex items-center space-x-4 p-4 bg-[#1a1a1a] rounded-lg
-                    border border-gray-800/50 hover:border-cyan-500/30 transition-colors"
+                    className="flex items-center space-x-4 px-2 md:p-4 bg-[#1a1a1a] rounded-lg
+                      border border-gray-800/50 hover:border-cyan-500/30 transition-colors overflow-x-auto"
                   >
-                    <div className="text-cyan-400 text-xl">{icons[idx]}</div>
+                    <div className="text-cyan-400 text-xl hidden md:block">
+                      {icons[idx]}
+                    </div>
+
                     <div className="flex-1">
                       <p className="text-gray-400 text-sm">{labels[idx]}</p>
                       {editProfileMode ? (
@@ -240,7 +242,6 @@ function Profile() {
                 );
               })}
             </div>
-
             {/* Action Buttons */}
             <div className="space-y-4 pt-4">
               <button
