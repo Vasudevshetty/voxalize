@@ -34,7 +34,7 @@ def chat_db(db_name, host, user, password, database, query):
         try:
             llm = ChatGroq(
                 groq_api_key=groq_api_key_3,
-                model_name="llama-3.3-70b-versatile",
+                model_name="meta-llama/llama-4-scout-17b-16e-instruct",
                 streaming=False
             )
 
@@ -132,7 +132,7 @@ def chat_db(db_name, host, user, password, database, query):
         try:
             llm = ChatGroq(
                 groq_api_key=groq_api_key_3,
-                model_name="llama-3.3-70b-versatile",
+                model_name="meta-llama/llama-4-scout-17b-16e-instruct",
                 streaming=False
             )
             
