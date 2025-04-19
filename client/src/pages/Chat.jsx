@@ -146,12 +146,12 @@ function Chat() {
   return (
     <div className="h-screen bg-black flex flex-col">
       <div className="p-4 bg-[#0a1a1a] border-b border-gray-800 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400">
+        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 ml-12">
           Voxalize
         </h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
         <AnimatePresence>
           {storedMessages?.map((message, index) => (
             <ChatMessage key={index} message={message} />
@@ -160,7 +160,7 @@ function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-gray-700 p-4 bg-[#1a1a1a]">
+      <div className="mx-4 mt-4">
         <VoiceInputBar
           completions={completions}
           suggestions={suggestions}
