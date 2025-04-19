@@ -215,7 +215,7 @@ def chat_db(db_name, host, user, password, database, query):
                 "sql_query": sql_query,
                 "sql_result": sql_result_list if result.returns_rows else "Query executed successfully. No rows returned.",
                 "summary": summary,
-                "overview": overview,                      # new field
+                "title": title,                      # new field
                 "agent_thought_process": thought_process  # Include the thought process
             }
             
