@@ -34,10 +34,10 @@ function Home() {
         </div>
 
         {/* Horizontal line */}
-        <div className="w-full border-t-2 border-[#3a3a3a]  max-w-4xl"></div>
+        <div className="w-full border-t-2 border-[#3a3a3a]  max-w-7xl"></div>
 
         {/* Card Section */}
-        <div className="bg-[#0e0e0e] rounded-xl p-6 flex flex-col md:flex-row justify-between items-center max-w-4xl w-full ">
+        <div className="bg-gradient-to-r from-[#423e3e] to-black rounded-xl flex flex-col md:flex-row justify-between items-center  w-[85%] px-8 py-2 ">
           {/* Text Content */}
           <div className="md:w-2/3 space-y-3">
             <h2 className="text-3xl tracking-wider  font-bold">
