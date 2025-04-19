@@ -179,7 +179,7 @@ function Profile() {
 
   return (
     <div className="bg-black min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-2xl w-full space-y-8 bg-[#131313] p-8 rounded-xl border border-gray-800">
+      <div className="max-w-2xl w-full space-y-8 p-8 rounded-xl">
         <div className="text-center">
           <h2 className="text-3xl font-bold">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-cyan-400">

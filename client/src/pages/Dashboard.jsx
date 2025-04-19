@@ -62,7 +62,7 @@ function Dashboard() {
     <div className="min-h-screen bg-black">
       <div className="fixed top-0 right-0 m-4 z-10">
         <Link to="/profile" className="flex items-center space-x-4">
-          <div className="text-gray-300">{user?.email}</div>
+          <div className="text-gray-300 max-sm:hidden">{user?.email}</div>
           <img
             src={import.meta.env.VITE_APP_BACKEND_URL + user?.profileImage}
             alt="Profile"
@@ -96,7 +96,7 @@ function Dashboard() {
 
               {/* DB Name */}
               <h3 className="text-2xl font-semibold text-white group-hover:text-cyan-400 transition-colors mb-2">
-                {db.name}
+                {db.database.toUpperCase()}
               </h3>
 
               {/* Created Date */}
