@@ -1,8 +1,12 @@
 const QueryMessage = require("../models/queryMessage");
 const Database = require("../models/database");
+const mongoose = require("mongoose");
+const axios = require("axios");
 
 // Create a new query message
 const createQueryMessage = async (req, res) => {
+  const startTime = Date.now(); // Add timestamp at start
+
   try {
     const database = await Database.findById(req.body.databaseId);
     if (!database) {
@@ -11,29 +15,46 @@ const createQueryMessage = async (req, res) => {
         .json({ error: "Database configuration not found" });
     }
 
-    const response = await axios.post("https://studysyncs.xyz/services/chat", {
-      query_request: {
-        query: req.body.requestQuery,
-      },
-      db_config: {
-        dbType: database.dbType,
-        host: database.host,
-        username: database.username,
-        password: database.password,
-        database: database.database,
-      },
-    });
+    let response;
+    try {
+      response = await axios.post("https://studysyncs.xyz/services/chat", {
+        query_request: {
+          query: req.body.requestQuery,
+        },
+        database_config: {
+          dbtype: database.dbType,
+          host: database.host,
+          user: database.username,
+          password: database.password,
+          dbname: database.database,
+        },
+      });
 
-    const [
+      response = response.data;
+    } catch (error) {
+      if (error.response) {
+        console.log(error);
+        throw new Error(
+          `Chat service error: ${
+            error.response.data.message || "Unknown error"
+          }`
+        );
+      } else if (error.request) {
+        throw new Error("Unable to reach chat service");
+      } else {
+        throw new Error(`Error: ${error.message}`);
+      }
+    }
+
+    const {
       user_query,
       sql_query,
       sql_result,
       summary,
-      title,
       agent_thought_process,
-    ] = response;
+    } = response;
 
-    // Create and save the query message
+    // Create and save the query message with calculated execution time
     const queryMessage = new QueryMessage({
       session: req.body.sessionId,
       user: req.user._id,
@@ -42,21 +63,22 @@ const createQueryMessage = async (req, res) => {
       sqlResponse: sql_result,
       summary,
       thoughtProcess: agent_thought_process,
-      executionTime: Date.now() - req.requestTime,
+      executionTime: Date.now() - startTime, // Calculate execution time
     });
 
     const savedMessage = await queryMessage.save();
 
     // Update session title if provided
-    if (title) {
+    if (response.title) {
       await mongoose
         .model("QuerySession")
-        .findByIdAndUpdate(req.body.sessionId, { title });
+        .findByIdAndUpdate(req.body.sessionId, { title: response.title });
     }
 
     res.status(201).json(savedMessage);
   } catch (error) {
     res.status(400).json({ error: error.message });
+    console.error("Error creating query message:", error);
   }
 };
 
