@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getQuerySessions } from "../redux/slices/querySession";
 import { IoMdClose } from "react-icons/io";
-import { MdOutlineMenuOpen } from "react-icons/md";
-import { FaSpinner } from "react-icons/fa";
+import { FaAngleLeft, FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { MdMenu } from "react-icons/md";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 const GradientTitle = () => (
   <h1 className="text-2xl font-bold relative flex items-center gap-2">
@@ -14,7 +15,7 @@ const GradientTitle = () => (
   </h1>
 );
 
-function SessionHistory() {
+function SessionHistory({ sidebarOpen, setSidebarOpen }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { sessionId } = useParams();
@@ -23,17 +24,31 @@ function SessionHistory() {
     (state) => state.querySession
   );
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef();
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const menuButtonRefs = useRef({});
 
   useEffect(() => {
     dispatch(getQuerySessions());
   }, [dispatch]);
 
+  const handleMenuClick = (e, id) => {
+    e.stopPropagation();
+    const rect = menuButtonRefs.current[id].getBoundingClientRect();
+    setMenuPosition({
+      top: rect.top + rect.height + 8,
+      left: rect.left - 20,
+    });
+    setOpenMenuId((prevId) => (prevId === id ? null : id));
+  };
+
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+      if (
+        !Object.values(menuButtonRefs.current).some((ref) =>
+          ref?.contains(e.target)
+        )
+      ) {
         setOpenMenuId(null);
       }
     };
@@ -74,20 +89,19 @@ function SessionHistory() {
       <div className="space-y-2 overflow-y-auto max-h-[calc(100vh-180px)] pr-2">
         {sessions.map((session) => {
           const isSelected = session._id === sessionId;
-          const isMenuOpen = openMenuId === session._id;
 
           return (
             <div key={session._id} className="group relative">
               <button
                 onClick={() => handleSessionClick(session._id)}
-                className={`w-full py-3 px-4 rounded-lg text-sm flex justify-between items-center transition-all
+                className={`w-full cursor-pointer py-3 px-4 rounded-lg text-sm flex justify-between items-center transition-all
                   ${
                     isSelected
-                      ? "bg-gradient-to-r from-green-400/10 to-cyan-400/10 text-white shadow-lg"
+                      ? "bg-gradient-to-r from-green-400/10 to-cyan-400/10 text-white shadow"
                       : "hover:bg-[#2a2a2a] text-gray-300"
                   }`}
               >
-                <div className="flex flex-col items-start overflow-hidden">
+                <div className="flex flex-col items-start overflow-hidden text-left max-w-[85%]">
                   <span className="font-medium truncate w-full">
                     {session.title}
                   </span>
@@ -96,34 +110,13 @@ function SessionHistory() {
                   </span>
                 </div>
                 <div
-                  className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer px-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenuId(
-                      openMenuId === session._id ? null : session._id
-                    );
-                  }}
+                  ref={(el) => (menuButtonRefs.current[session._id] = el)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1"
+                  onClick={(e) => handleMenuClick(e, session._id)}
                 >
-                  ⋮
+                  <BsThreeDotsVertical size={16} />
                 </div>
               </button>
-
-              {isMenuOpen && (
-                <div
-                  ref={menuRef}
-                  className="absolute right-2 top-12 z-10 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg w-40 py-1 text-sm overflow-hidden"
-                >
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-400 transition-colors"
-                    onClick={() => {
-                      // Add delete logic here
-                      setOpenMenuId(null);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
             </div>
           );
         })}
@@ -135,29 +128,47 @@ function SessionHistory() {
     <>
       {!sidebarOpen && (
         <button
-          className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-[#1e1e1e] hover:bg-[#2a2a2a] transition-colors"
+          className="fixed top-4 left-4 z-50 p-2 rounded-lg cursor-pointer transition-colors text-white"
           onClick={() => setSidebarOpen(true)}
         >
-          <MdOutlineMenuOpen size={24} />
+          <MdMenu size={24} color="white" />
         </button>
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-screen bg-[#131313] border-r border-gray-800 transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? "translate-x-0 w-80" : "-translate-x-full"} z-40`}
+        className={`fixed top-0 left-0 h-screen bg-[#131313] border-r border-gray-800 transition-all duration-300 z-40
+          ${sidebarOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"}`}
       >
-        <div className="p-4 flex items-center justify-between border-b border-gray-800">
+        <div className="p-4 flex items-center justify-center relative border-b border-gray-800">
           <GradientTitle />
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white cursor-pointer rounded-lg transition-colors"
           >
-            <IoMdClose size={20} />
+            <FaAngleLeft size={20} />
           </button>
         </div>
 
         <div className="p-4">{renderSessions()}</div>
       </aside>
+
+      {openMenuId && (
+        <div
+          className="fixed z-50 w-10 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg p-1 flex flex-col items-center space-y-1"
+          style={{ top: menuPosition.top, left: menuPosition.left }}
+        >
+          <button
+            className="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-500/10 transition"
+            onClick={() => {
+              // your delete logic
+              setOpenMenuId(null);
+            }}
+            title="Delete"
+          >
+            <FaTrashAlt size={14} />
+          </button>
+        </div>
+      )}
     </>
   );
 }

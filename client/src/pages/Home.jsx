@@ -5,7 +5,8 @@ import { useState, useRef, useEffect } from "react";
 import { AiOutlineStock } from "react-icons/ai";
 import WaveAnimation from "../components/WaveAnimation";
 import { motion } from "framer-motion";
-
+import Features from "../components/Features";
+import Footer from "../components/Footer";
 function Home() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
@@ -89,8 +90,8 @@ function Home() {
             transition={{ duration: 0.6 }}
           >
             <WaveAnimation />
-            <div className="text-3xl sm:text-5xl font-sharetechmono font-medium tracking-wide ml-10 text-gradient-to-r from-green-400 to-cyan-500">
-              <span className="texen-400">Speak</span>
+            <div className="text-3xl sm:text-5xl font-semibold tracking-wide ml-10">
+              <span className="text-green-400">Speak</span>
               <span className="text-green-500">.</span>
               <span className="text-cyan-400">See</span>
               <span className="text-cyan-500">.</span>
@@ -189,14 +190,17 @@ function Home() {
         {/* Divider */}
         <div className="w-full border-t-2 border-[#3a3a3a] max-w-4xl mx-auto my-10" />
 
-        {/* CTA Section */}
+        {/* Horizontal line */}
+        <div className="w-full border-t-2 border-[#3a3a3a] max-w-7xl"></div>
+
+        {/* Card Section */}
         <motion.div
-          className="bg-[#0e0e0e] rounded-xl p-6 flex flex-col md:flex-row justify-between items-center max-w-4xl w-full mx-auto"
+          className="bg-gradient-to-r from-[#423e3e] to-black rounded-xl ml-24  p-4 flex flex-col md:flex-row justify-center items-center  w-[85%]  mt-8"
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <div className="md:w-2/3 space-y-3">
+          <div className="md:w-2/3 space-y-3 px-4">
             <h2 className="text-3xl tracking-wider font-bold">
               Experience the Power of
               <br />
@@ -229,6 +233,10 @@ function Home() {
             />
           </div>
         </motion.div>
+      </div>
+      <div className="h-screen flex items-center flex-col my-12 ">
+        <Features />
+        <Footer />
       </div>
     </motion.div>
   );
