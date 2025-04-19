@@ -61,7 +61,7 @@ function Features() {
   ];
 
   return (
-    <div className="bg-gradient-to-r rounded-xl from-black via-gray-900 to-purple-900 py-12 md:py-24 w-full md:w-[90vw]">
+    <div className="bg-gradient-to-r rounded-xl from-black via-gray-900 to-purple-900 py-12 md:py-24  w-[95vw]">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0 }}
