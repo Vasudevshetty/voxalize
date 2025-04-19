@@ -7,12 +7,15 @@ import WaveAnimation from "../components/WaveAnimation";
 import { motion } from "framer-motion";
 import Features from "../components/Features";
 import Footer from "../components/Footer";
+import AutoChatDemo from "../components/AutoChatDemo";
+
 function Home() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [locale, setLocale] = useState("en");
   const [dbConfig, setDbConfig] = useState(null);
   const messagesEndRef = useRef(null);
+  const [activeChat, setActiveChat] = useState(0); // 0 for IPL, 1 for Sales
 
   const LANGUAGES = [
     { label: "English", code: "en" },
@@ -69,6 +72,8 @@ function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const [ipl, setIpl] = useState(false);
+
   return (
     <motion.div
       className="bg-[#000000]"
@@ -90,13 +95,12 @@ function Home() {
             transition={{ duration: 0.6 }}
           >
             <WaveAnimation />
-            <div className="text-3xl sm:text-5xl font-semibold tracking-wide ml-10">
-              <span className="text-green-400">Speak</span>
-              <span className="text-green-500">.</span>
-              <span className="text-cyan-400">See</span>
-              <span className="text-cyan-500">.</span>
-              <span className="text-blue-500">Create</span>
+            <div className="ml-10 mb-4">
+              <h1 className="typewriter text-3xl sm:text-5xl font-semibold tracking-wide text-transparent bg-gradient-to-r from-green-400 via-cyan-400 to-blue-500 bg-clip-text">
+                Speak.See.Create
+              </h1>
             </div>
+
             <p className="text-gray-400 mt-2 mb-6 text-sm sm:text-base tracking-wider">
               Where voice meets visualization through cutting-edge{" "}
               <span className="text-white font-mono">AI</span>.
@@ -105,7 +109,7 @@ function Home() {
 
           {/* Chat UI Section */}
           <motion.div
-            className="bg-[#0e0e0e] w-full max-w-4xl rounded-lg flex flex-col h-[26rem] overflow-hidden shadow-[0_0_8px_#00fff066,0_0_12px_#00ffcc55,0_0_16px_#00ffaa44] border border-cyan-400"
+            className="bg-[#0e0e0e] w-full  rounded-lg flex flex-col h-screen overflow-hidden shadow-[0_0_8px_#00fff066,0_0_12px_#00ffcc55,0_0_16px_#00ffaa44] border border-cyan-400"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
@@ -118,10 +122,13 @@ function Home() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setDbConfig(MYSQL_CONFIG)}
+                  onClick={() => {
+                    setDbConfig(MYSQL_CONFIG);
+                    setActiveChat(0);
+                  }}
                   className={`px-3 py-1 rounded-md text-sm font-medium h-10 flex items-center ${
-                    dbConfig?.dbtype === "mysql"
-                      ? "bg-cyan-500 text-black"
+                    activeChat === 0
+                      ? "bg-blue-500 text-white"
                       : "bg-[#2a2a2a] text-white border border-gray-600"
                   }`}
                 >
@@ -133,10 +140,13 @@ function Home() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setDbConfig(POSTGRES_CONFIG)}
+                  onClick={() => {
+                    setDbConfig(POSTGRES_CONFIG);
+                    setActiveChat(1);
+                  }}
                   className={`px-3 py-1 rounded-md text-sm font-medium flex items-center h-10 ${
-                    dbConfig?.dbtype === "postgresql"
-                      ? "bg-green-500 text-black"
+                    activeChat === 1
+                      ? "bg-green-500 text-white"
                       : "bg-[#2a2a2a] text-white border border-gray-600"
                   }`}
                 >
@@ -148,14 +158,15 @@ function Home() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {messages.map((msg, i) => (
-                <ChatMessage key={i} message={msg} />
-              ))}
-              <div ref={messagesEndRef} />
+            <div className="flex-1 overflow-hidden  px-4 py-3">
+              <AutoChatDemo
+                ipl={ipl}
+                setIpl={setIpl}
+                setActiveChat={setActiveChat}
+              />
             </div>
 
-            <div className="bg-[#1a1a1a] border-t border-gray-700 p-4 flex items-center gap-3">
+            {/* <div className="bg-[#1a1a1a] border-t border-gray-700 p-4 flex items-center gap-3">
               <select
                 value={locale}
                 onChange={(e) => setLocale(e.target.value)}
@@ -183,7 +194,7 @@ function Home() {
               >
                 Send
               </motion.button>
-            </div>
+            </div> */}
           </motion.div>
         </div>
 
