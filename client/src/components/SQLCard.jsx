@@ -1,54 +1,99 @@
-import AnsiToHtml from "ansi-to-html";
-import ResultTable from "./ResultTable";
+// eslint-disable-next-line
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 
-const ansiConverter = new AnsiToHtml();
-
-const SQLCard = ({ data }) => {
-  const { user_query, sql_query, summary, agent_thought_process, sql_result } =
-    data;
-
-  const renderedThoughtProcess = ansiConverter.toHtml(
-    agent_thought_process || ""
-  );
+const SQLCard = ({
+  query,
+  sqlQuery,
+  sqlResponse,
+  summary,
+  thoughtProcess,
+  executionTime,
+  timestamp,
+}) => {
+  const [showThoughtProcess, setShowThoughtProcess] = useState(false);
 
   return (
-    <div className="bg-[#1a2a2a] text-white p-4 rounded-xl border border-gray-700 space-y-3">
-      <div>
-        <p className="text-sm text-gray-400">User Query:</p>
-        <p className="text-lg font-semibold">{user_query}</p>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="w-full md:max-w-4xl bg-[#1a2a2a] border border-gray-700 rounded-xl shadow-lg p-4 space-y-4"
+    >
+      {/* User Query */}
+      <div className="text-gray-400 text-sm">
+        <p className="font-medium mb-1">User Query:</p>
+        <p className="text-white">{query}</p>
       </div>
 
-      <div>
-        <p className="text-sm text-gray-400">SQL Query:</p>
-        <pre className="bg-[#111] text-green-400 p-2 rounded-lg overflow-x-auto">
-          {sql_query}
+      {/* SQL Query */}
+      <div className="bg-[#0a1a1a] rounded-lg p-3">
+        <pre className="text-cyan-400 text-xs md:text-sm overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+          <code className="whitespace-pre-wrap break-words">{sqlQuery}</code>
         </pre>
       </div>
 
-      {summary && (
-        <div>
-          <p className="text-sm text-gray-400">Summary:</p>
-          <p>{summary}</p>
-        </div>
-      )}
+      {/* SQL Response Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-700 text-sm text-left">
+          <thead className="bg-[#2a3a3a] text-gray-300 uppercase text-xs">
+            <tr>
+              {sqlResponse[0] &&
+                Object.keys(sqlResponse[0]).map((key, index) => (
+                  <th key={index} className="px-3 py-2">
+                    {key.replace(/_/g, " ")}
+                  </th>
+                ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700">
+            {sqlResponse.map((row, i) => (
+              <tr key={i} className="hover:bg-[#2a3a3a]">
+                {Object.values(row).map((val, j) => (
+                  <td key={j} className="px-3 py-2 text-gray-300">
+                    {val}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {agent_thought_process && (
-        <div>
-          <p className="text-sm text-gray-400 mb-1">Thought Process:</p>
-          <div
-            className="bg-black text-white text-sm p-2 rounded-lg overflow-x-auto"
-            dangerouslySetInnerHTML={{ __html: renderedThoughtProcess }}
-          />
-        </div>
-      )}
+      {/* Summary */}
+      <div className="text-gray-300 text-sm">
+        <p>{summary}</p>
+      </div>
 
-      {sql_result && sql_result.length > 0 && (
-        <div>
-          <p className="text-sm text-gray-400 mb-1">Results:</p>
-          <ResultTable rows={sql_result} />
-        </div>
+      {/* Footer Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500">
+        <span>Execution time: {(executionTime / 1000).toFixed(2)}s</span>
+        <button
+          onClick={() => setShowThoughtProcess(!showThoughtProcess)}
+          className="text-cyan-400 hover:text-cyan-300"
+        >
+          {showThoughtProcess ? "Hide" : "Show"} thought process
+        </button>
+        <span>
+          {formatDistanceToNow(new Date(timestamp), { addSuffix: true })}
+        </span>
+      </div>
+
+      {/* Thought Process Toggle Section */}
+      {showThoughtProcess && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="bg-[#0a1a1a] rounded-lg p-3"
+        >
+          <pre className="text-gray-400 text-xs md:text-sm whitespace-pre-wrap break-words">
+            {thoughtProcess}
+          </pre>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
