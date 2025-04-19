@@ -66,7 +66,7 @@ function Dashboard() {
         <div className="container mx-auto flex justify-between items-center px-4">
           <Link
             to="/"
-            className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400"
+            className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 ml-12"
           >
             Voxalize
           </Link>

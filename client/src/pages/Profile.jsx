@@ -181,7 +181,7 @@ function Profile() {
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-b from-black to-gray-900 flex flex-col">
       {/* Header - Fixed height */}
-      <div className="p-4 bg-[#0a1a1a] border-b border-gray-800">
+      <div className="p-3 bg-[#0a1a1a] border-b border-gray-800">
         <div className="max-w-2xl mx-auto flex justify-between items-center">
           <h2 className="text-3xl font-bold">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-cyan-400">
