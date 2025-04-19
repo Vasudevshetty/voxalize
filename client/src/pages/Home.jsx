@@ -89,14 +89,14 @@ function Home() {
             transition={{ duration: 0.6 }}
           >
             <WaveAnimation />
-            <div className="text-3xl sm:text-5xl font-semibold tracking-wide ml-10">
+            <div className="text-3xl sm:text-5xl font-sharetechmono font-medium tracking-wide ml-10 text-gradient-to-r from-green-400 to-cyan-500">
               <span className="texen-400">Speak</span>
               <span className="text-green-500">.</span>
               <span className="text-cyan-400">See</span>
               <span className="text-cyan-500">.</span>
               <span className="text-blue-500">Create</span>
             </div>
-            <p className="text-gray-400 mt-6 text-sm sm:text-base tracking-wider">
+            <p className="text-gray-400 mt-2 mb-6 text-sm sm:text-base tracking-wider">
               Where voice meets visualization through cutting-edge{" "}
               <span className="text-white font-mono">AI</span>.
             </p>
@@ -104,7 +104,7 @@ function Home() {
 
           {/* Chat UI Section */}
           <motion.div
-            className="bg-[#0e0e0e] w-full max-w-4xl rounded-lg flex flex-col h-[26rem] overflow-hidden"
+            className="bg-[#0e0e0e] w-full max-w-4xl rounded-lg flex flex-col h-[26rem] overflow-hidden shadow-[0_0_8px_#00fff066,0_0_12px_#00ffcc55,0_0_16px_#00ffaa44] border border-cyan-400"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
@@ -124,7 +124,7 @@ function Home() {
                       : "bg-[#2a2a2a] text-white border border-gray-600"
                   }`}
                 >
-                  IPL{" "}
+                  IPL
                   <span>
                     <img src="./ipl.png" alt="" className="w-10 h-10" />
                   </span>
