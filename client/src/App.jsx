@@ -10,12 +10,12 @@ import NotFound from "./pages/NotFound";
 import Chat from "./pages/Chat";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Layout from "./components/Layout";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-
       <Route
         path="/auth/login"
         element={
@@ -49,24 +49,33 @@ function App() {
         }
       />
 
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        }
-      />
-      <Route path="/chat/:databaseId" element={<Chat />} />
-      <Route path="*" element={<NotFound />} />
+      <Route element={<Layout />}>
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/chat/:sessionId"
+          element={
+            <PrivateRoute>
+              <Chat />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+      </Route>
     </Routes>
   );
 }

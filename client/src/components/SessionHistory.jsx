@@ -1,23 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { getQuerySessions } from "../redux/slices/querySession";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import { MdOutlineMenuOpen } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 
 const GradientTitle = () => (
-  <h1 className="text-4xl font-bold mb-8 relative">
+  <h1 className="text-2xl font-bold relative flex items-center gap-2">
     <span className="bg-clip-text text-transparent bg-gradient-to-tr from-green-400 to-cyan-400">
-      Query History
+      History
     </span>
   </h1>
 );
 
-function SessionHistory({ selectedHistoryId, setSelectedHistoryId }) {
+function SessionHistory() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { sessionId } = useParams();
+
   const { sessions, loading, error } = useSelector(
     (state) => state.querySession
   );
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef();
@@ -36,7 +41,11 @@ function SessionHistory({ selectedHistoryId, setSelectedHistoryId }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const renderContent = () => {
+  const handleSessionClick = (id) => {
+    navigate(`/chat/${id}`);
+  };
+
+  const renderSessions = () => {
     if (loading.fetch) {
       return (
         <div className="flex items-center justify-center h-40">
@@ -62,36 +71,32 @@ function SessionHistory({ selectedHistoryId, setSelectedHistoryId }) {
     }
 
     return (
-      <div className="space-y-2">
+      <div className="space-y-2 overflow-y-auto max-h-[calc(100vh-180px)] pr-2">
         {sessions.map((session) => {
-          const isSelected = selectedHistoryId === session._id;
+          const isSelected = session._id === sessionId;
           const isMenuOpen = openMenuId === session._id;
 
           return (
-            <div key={session._id} className="space-y-1 relative">
+            <div key={session._id} className="group relative">
               <button
-                onClick={() => setSelectedHistoryId(session._id)}
-                className={`w-full py-2 px-3 rounded-2xl text-sm flex justify-between items-center transition-all duration-200
+                onClick={() => handleSessionClick(session._id)}
+                className={`w-full py-3 px-4 rounded-lg text-sm flex justify-between items-center transition-all
                   ${
                     isSelected
-                      ? "bg-gradient-to-r from-[#00FF6F]/10 to-transparent border-l-4 border-[#00FF6F] shadow-lg scale-[1.02]"
-                      : "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-400"
+                      ? "bg-gradient-to-r from-green-400/10 to-cyan-400/10 text-white shadow-lg"
+                      : "hover:bg-[#2a2a2a] text-gray-300"
                   }`}
               >
-                <div className="flex flex-col items-start">
-                  <span
-                    className={
-                      isSelected ? "text-white font-semibold" : "text-gray-300"
-                    }
-                  >
+                <div className="flex flex-col items-start overflow-hidden">
+                  <span className="font-medium truncate w-full">
                     {session.title}
                   </span>
                   <span className="text-xs text-gray-500">
                     {new Date(session.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <span
-                  className="text-lg mb-2 cursor-pointer"
+                <div
+                  className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer px-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     setOpenMenuId(
@@ -99,19 +104,19 @@ function SessionHistory({ selectedHistoryId, setSelectedHistoryId }) {
                     );
                   }}
                 >
-                  ...
-                </span>
+                  ⋮
+                </div>
               </button>
 
               {isMenuOpen && (
                 <div
                   ref={menuRef}
-                  className="absolute right-3 top-10 z-10 bg-[#1e1e1e] border border-gray-700 rounded-md shadow-md w-40 text-sm"
+                  className="absolute right-2 top-12 z-10 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg w-40 py-1 text-sm overflow-hidden"
                 >
                   <button
-                    className="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-red-400"
+                    className="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-400 transition-colors"
                     onClick={() => {
-                      // Add delete functionality here
+                      // Add delete logic here
                       setOpenMenuId(null);
                     }}
                   >
@@ -127,46 +132,33 @@ function SessionHistory({ selectedHistoryId, setSelectedHistoryId }) {
   };
 
   return (
-    <div>
+    <>
       {!sidebarOpen && (
         <button
-          className="absolute top-6 left-6 z-20 text-white sm:hidden"
+          className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-[#1e1e1e] hover:bg-[#2a2a2a] transition-colors"
           onClick={() => setSidebarOpen(true)}
         >
-          <MdOutlineMenuOpen size={32} />
+          <MdOutlineMenuOpen size={24} />
         </button>
       )}
 
-      <div
-        className={`${
-          sidebarOpen ? "w-80" : "w-16"
-        } h-screen bg-[#131313] border-r border-gray-800 p-6 flex flex-col transform transition-all duration-300 z-40
-        sm:relative sm:w-80 sm:block ${
-          !sidebarOpen ? "absolute top-0 left-0 sm:relative" : ""
-        }`}
+      <aside
+        className={`fixed top-0 left-0 h-screen bg-[#131313] border-r border-gray-800 transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? "translate-x-0 w-80" : "-translate-x-full"} z-40`}
       >
-        <div className="flex justify-between mb-12">
-          {sidebarOpen ? (
-            <button onClick={() => setSidebarOpen(false)} className="sm:hidden">
-              <IoIosArrowBack size={32} />
-            </button>
-          ) : (
-            <button onClick={() => setSidebarOpen(true)} className="sm:hidden">
-              <MdOutlineMenuOpen size={32} />
-            </button>
-          )}
+        <div className="p-4 flex items-center justify-between border-b border-gray-800">
+          <GradientTitle />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <IoMdClose size={20} />
+          </button>
         </div>
 
-        {sidebarOpen && (
-          <>
-            <div className="text-center tracking-widest">
-              <GradientTitle />
-            </div>
-            <div className="mt-6">{renderContent()}</div>
-          </>
-        )}
-      </div>
-    </div>
+        <div className="p-4">{renderSessions()}</div>
+      </aside>
+    </>
   );
 }
 

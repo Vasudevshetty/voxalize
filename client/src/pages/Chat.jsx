@@ -16,7 +16,7 @@ const LANGUAGES = [
 ];
 
 function Chat() {
-  const { databaseId } = useParams();
+  const { sessionId } = useParams();
   const dispatch = useDispatch();
   const { currentDatabase, loading } = useSelector((state) => state.database);
 
