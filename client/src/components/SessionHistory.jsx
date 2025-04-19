@@ -57,6 +57,7 @@ function SessionHistory({ sidebarOpen, setSidebarOpen }) {
 
   const handleSessionClick = (id) => {
     navigate(`/chat/${id}`);
+    setSidebarOpen(false); // auto-close on mobile
   };
 
   const renderSessions = () => {
@@ -136,12 +137,19 @@ function SessionHistory({ sidebarOpen, setSidebarOpen }) {
         <MdMenu size={24} />
       </button>
 
-      {/* Mobile Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden
-          ${sidebarOpen ? "opacity-100 z-30" : "opacity-0 -z-10"}`}
-        onClick={() => setSidebarOpen(false)}
-      />
+      {/* Mobile Overlay - closes only when clicked outside sidebar */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 lg:hidden"
+          onClick={(e) => {
+            if (!e.target.closest("aside")) {
+              setSidebarOpen(false);
+            }
+          }}
+        >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        </div>
+      )}
 
       {/* Sidebar */}
       <aside
@@ -158,6 +166,7 @@ function SessionHistory({ sidebarOpen, setSidebarOpen }) {
           <Link
             to="/dashboard"
             className="text-gray-400 hover:text-white transition-colors"
+            onClick={() => setSidebarOpen(false)} // auto-close on mobile
           >
             <FaHome size={20} />
           </Link>
