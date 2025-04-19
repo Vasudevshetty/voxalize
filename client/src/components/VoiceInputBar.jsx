@@ -13,8 +13,8 @@ const LANGUAGES = [
   { label: "Telugu", code: "te" },
 ];
 
-const SUGGESTIONS_LIMIT = 8; // Show 8 suggestions in a 4x2 grid
-const COMPLETIONS_LIMIT = 6; // Show 6 completions in a 3x2 grid
+const SUGGESTIONS_LIMIT = 4; // Show 8 suggestions in a 4x2 grid
+const COMPLETIONS_LIMIT = 3; // Show 6 completions in a 3x2 grid
 
 // Add animation variants
 const gridVariants = {
@@ -143,20 +143,25 @@ export default function VoiceInputBar({
             <div className="flex flex-wrap gap-2">
               {(inputText ? completions : suggestions)
                 .slice(0, inputText ? COMPLETIONS_LIMIT : SUGGESTIONS_LIMIT)
-                .map((item, index) => (
-                  <motion.button
-                    key={index}
-                    variants={itemVariants}
-                    onClick={() => onSuggestionClick?.(item)}
-                    className="text-sm bg-[#1a2a2a] text-gray-300 px-4 py-2 rounded-lg
-                              border border-gray-700/50 hover:border-cyan-500/30 
-                              hover:bg-[#2a3a3a] transition-all duration-200"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {item}
-                  </motion.button>
-                ))}
+                .map((item, index) => {
+                  // Ensure item is a string
+                  const displayText =
+                    typeof item === "object" ? item.query : item;
+                  return (
+                    <motion.button
+                      key={index}
+                      variants={itemVariants}
+                      onClick={() => onSuggestionClick?.(displayText)}
+                      className="text-sm bg-[#1a2a2a] text-gray-300 px-4 py-2 rounded-lg
+                                border border-gray-700/50 hover:border-cyan-500/30 
+                                hover:bg-[#2a3a3a] transition-all duration-200"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {displayText}
+                    </motion.button>
+                  );
+                })}
             </div>
           </motion.div>
         )}

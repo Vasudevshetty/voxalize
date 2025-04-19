@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import VoiceInputBar from "../components/VoiceInputBar";
 
-import VoiceToTextTranslator from "../components/VoiceToTextTranslator";
 import Footer from "../components/Footer";
 import Features from "../components/Features";
 function Home() {
