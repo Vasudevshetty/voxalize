@@ -13,6 +13,8 @@ import { AnimatePresence } from "framer-motion";
 import ChatMessage from "../components/ChatMessage";
 import VoiceInputBar from "../components/VoiceInputBar";
 import debounce from "lodash/debounce";
+import { useAuth } from "../context/Auth";
+import { HiOutlineLogout } from "react-icons/hi";
 
 function Chat() {
   const { sessionId } = useParams();
@@ -22,7 +24,7 @@ function Chat() {
   const { messages: storedMessages } = useSelector(
     (state) => state.queryMessage
   );
-
+  const { logout } = useAuth();
   const [inputText, setInputText] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [completions, setCompletions] = useState([]);
@@ -164,29 +166,34 @@ function Chat() {
 
   return (
     <div className="h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col">
-      <div className="px-6 py-3 bg-[#0a1a1a]/90 border-b border-gray-800 backdrop-blur-sm flex justify-between items-center sticky top-0 z-10">
+      <div className="p-4 bg-[#0a1a1a] border-b border-gray-800 flex justify-between items-center">
         <Link
           to="/"
-          className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 hover:from-green-300 hover:to-cyan-300 transition-colors"
+          className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 ml-12"
         >
           Voxalize
         </Link>
-        <Link
-          to="/profile"
-          className="flex items-center space-x-4 hover:opacity-80 transition-opacity"
-        >
-          <div className="text-gray-300 max-sm:hidden font-medium">
-            {currentSession?.user?.email}
-          </div>
-          <img
-            src={
-              import.meta.env.VITE_APP_BACKEND_URL +
-              currentSession?.user?.profileImage
-            }
-            alt="Profile"
-            className="w-10 h-10 rounded-full border-2 border-gray-700"
-          />
-        </Link>
+        <div className="flex items-center space-x-4 mr-12 justify-center">
+          <Link to="/profile" className="flex items-center space-x-4">
+            <div className="text-gray-300 max-sm:hidden">
+              {currentSession?.user?.email}
+            </div>
+            <img
+              src={
+                import.meta.env.VITE_APP_BACKEND_URL +
+                currentSession?.user?.profileImage
+              }
+              alt="Profile"
+              className="w-8 h-8 rounded-full"
+            />
+          </Link>
+          <button
+            onClick={logout}
+            className="text-gray-300 hover:text-cyan-400 transition-colors duration-300 rounded-lg cursor-pointer"
+          >
+            <HiOutlineLogout size={24} />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
