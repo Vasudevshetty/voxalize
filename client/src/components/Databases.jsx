@@ -6,10 +6,13 @@ import Modal from "./Modal";
 import { FaDatabase, FaPlus, FaSpinner } from "react-icons/fa";
 import { BiLogoPostgresql } from "react-icons/bi";
 import { GrMysql } from "react-icons/gr";
+import { useAuth } from "../context/Auth";
 
 function Databases() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  console.log(user);
   const { databases, loading, error } = useSelector((state) => state.database);
   const [selectedDatabase, setSelectedDatabase] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +55,7 @@ function Databases() {
           className="h-14 w-14 block border-2 border-gray-700 hover:border-cyan-400 transition-colors overflow-hidden rounded-full shadow-lg"
         >
           <img
-            src="/default-avatar.png"
+            src={import.meta.env.VITE_APP_BACKEND_URL + user?.profileImage}
             alt="Profile"
             className="w-full h-full object-cover"
           />
