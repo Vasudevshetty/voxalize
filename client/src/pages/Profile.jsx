@@ -7,10 +7,11 @@ import {
   getProfile,
 } from "../redux/slices/user";
 import { FaUser, FaEnvelope, FaLock, FaCamera, FaPhone } from "react-icons/fa";
+import { HiOutlineLogout } from "react-icons/hi";
 
 function Profile() {
   const dispatch = useDispatch();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { loading, error, profile } = useSelector((state) => state.user);
   const fileInputRef = useRef(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -178,108 +179,144 @@ function Profile() {
   );
 
   return (
-    <div className="bg-black min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-2xl w-full space-y-8 p-8 rounded-xl">
-        <div className="text-center">
+    <div className="h-screen overflow-hidden bg-gradient-to-b from-black to-gray-900 flex flex-col">
+      {/* Header - Fixed height */}
+      <div className="p-3 bg-[#0a1a1a] border-b border-gray-800">
+        <div className="max-w-2xl mx-auto flex justify-between items-center">
           <h2 className="text-3xl font-bold">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-cyan-400">
               Profile Settings
             </span>
           </h2>
-          <p className="mt-2 text-gray-400">Manage your account information</p>
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-cyan-400 
+              transition-colors duration-300 rounded-lg"
+          >
+            <HiOutlineLogout size={20} />
+            <span className="text-sm">Logout</span>
+          </button>
         </div>
+      </div>
 
-        {profileImageSection}
+      {/* Main Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-2xl mx-auto p-8">
+          <div
+            className="space-y-8 bg-[#0a1a1a]/50 rounded-xl p-8 backdrop-blur-sm
+          border border-gray-800/50 shadow-xl"
+          >
+            {/* Profile Image Section */}
+            {profileImageSection}
 
-        <div className="space-y-4">
-          {["username", "email", "mobileNumber"].map((field, idx) => {
-            const icons = [<FaUser />, <FaEnvelope />, <FaPhone />];
-            const labels = ["Username", "Email", "Mobile Number"];
-            return (
-              <div
-                key={field}
-                className="flex items-center space-x-4 p-4 bg-[#1a1a1a] rounded-lg"
+            {/* Profile Info Section */}
+            <div className="space-y-4">
+              {["username", "email", "mobileNumber"].map((field, idx) => {
+                const icons = [<FaUser />, <FaEnvelope />, <FaPhone />];
+                const labels = ["Username", "Email", "Mobile Number"];
+                return (
+                  <div
+                    key={field}
+                    className="flex items-center space-x-4 p-4 bg-[#1a1a1a] rounded-lg
+                    border border-gray-800/50 hover:border-cyan-500/30 transition-colors"
+                  >
+                    <div className="text-cyan-400 text-xl">{icons[idx]}</div>
+                    <div className="flex-1">
+                      <p className="text-gray-400 text-sm">{labels[idx]}</p>
+                      {editProfileMode ? (
+                        <input
+                          type="text"
+                          name={field}
+                          value={profileData[field]}
+                          onChange={handleProfileChange}
+                          className="w-full bg-transparent border-b border-gray-700 
+                          text-white focus:outline-none focus:border-cyan-400 py-1"
+                        />
+                      ) : (
+                        <p className="text-white py-1">{profileData[field]}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-4 pt-4">
+              <button
+                onClick={() => {
+                  if (editProfileMode) handleProfileSubmit();
+                  else setEditProfileMode(true);
+                }}
+                className="w-full bg-gradient-to-r from-green-400 to-cyan-400 
+                text-white rounded-lg px-4 py-2.5 hover:opacity-90 transition-opacity
+                font-medium"
               >
-                <div className="text-cyan-400 text-xl">{icons[idx]}</div>
-                <div className="flex-1">
-                  <p className="text-gray-400 text-sm">{labels[idx]}</p>
-                  {editProfileMode ? (
-                    <input
-                      type="text"
-                      name={field}
-                      value={profileData[field]}
-                      onChange={handleProfileChange}
-                      className="w-full bg-transparent border-b border-gray-700 text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  ) : (
-                    <p className="text-white">{profileData[field]}</p>
-                  )}
-                </div>
+                {editProfileMode ? "Save Changes" : "Edit Profile"}
+              </button>
+
+              {/* Password Section */}
+              <div className="border-t border-gray-800 pt-6">
+                <button
+                  onClick={() => setEditPasswordMode(!editPasswordMode)}
+                  className="text-cyan-400 hover:text-cyan-300 flex items-center 
+                  space-x-2 mb-4"
+                >
+                  <FaLock />
+                  <span>Change Password</span>
+                </button>
+
+                {editPasswordMode && (
+                  <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                    {(updateError || error?.password) && (
+                      <div
+                        className="text-red-500 text-sm text-center bg-red-500/10 
+                      py-2 px-4 rounded-lg border border-red-500/20"
+                      >
+                        {updateError || error.password}
+                      </div>
+                    )}
+
+                    {["oldPassword", "newPassword", "confirmPassword"].map(
+                      (field, idx) => (
+                        <input
+                          key={field}
+                          type="password"
+                          name={field}
+                          placeholder={
+                            ["Current", "New", "Confirm New"][idx] + " Password"
+                          }
+                          value={formData[field]}
+                          onChange={handlePasswordChange}
+                          className="w-full bg-[#1a1a1a] border border-gray-800 
+                          rounded-lg px-4 py-2.5 focus:outline-none focus:border-cyan-400 
+                          text-white transition-colors"
+                        />
+                      )
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading.password}
+                      className="w-full bg-gradient-to-r from-green-400 to-cyan-400 
+                      text-white rounded-lg px-4 py-2.5 hover:opacity-90 
+                      transition-opacity flex items-center justify-center font-medium"
+                    >
+                      {loading.password ? (
+                        <>
+                          <LoadingSpinner />
+                          <span className="ml-2">Updating...</span>
+                        </>
+                      ) : (
+                        "Update Password"
+                      )}
+                    </button>
+                  </form>
+                )}
               </div>
-            );
-          })}
+            </div>
+          </div>
         </div>
-
-        <div className="pt-4 space-y-2">
-          <button
-            onClick={() => {
-              if (editProfileMode) handleProfileSubmit();
-              else setEditProfileMode(true);
-            }}
-            className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-lg px-4 py-2 hover:opacity-90 transition-opacity"
-          >
-            {editProfileMode ? "Save Changes" : "Edit Profile"}
-          </button>
-
-          <button
-            onClick={() => setEditPasswordMode(!editPasswordMode)}
-            className="text-cyan-400 hover:text-cyan-300 flex items-center space-x-2"
-          >
-            <FaLock />
-            <span>Change Password</span>
-          </button>
-        </div>
-
-        {editPasswordMode && (
-          <form onSubmit={handlePasswordSubmit} className="mt-4 space-y-4">
-            {(updateError || error?.password) && (
-              <div className="text-red-500 text-sm text-center bg-red-500/10 py-2 rounded">
-                {updateError || error.password}
-              </div>
-            )}
-
-            {["oldPassword", "newPassword", "confirmPassword"].map(
-              (field, idx) => (
-                <input
-                  key={field}
-                  type="password"
-                  name={field}
-                  placeholder={
-                    ["Current", "New", "Confirm New"][idx] + " Password"
-                  }
-                  value={formData[field]}
-                  onChange={handlePasswordChange}
-                  className="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-400 text-white"
-                />
-              )
-            )}
-
-            <button
-              type="submit"
-              disabled={loading.password}
-              className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-lg px-4 py-2 hover:opacity-90 transition-opacity flex items-center justify-center"
-            >
-              {loading.password ? (
-                <>
-                  <LoadingSpinner />
-                  <span className="ml-2">Updating...</span>
-                </>
-              ) : (
-                "Update Password"
-              )}
-            </button>
-          </form>
-        )}
       </div>
     </div>
   );
