@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
@@ -11,8 +11,13 @@ import Chat from "./pages/Chat";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Layout from "./components/Layout";
+import { useEffect } from "react";
 
 function App() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scrolls to the top when route changes
+  }, [pathname]);
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -74,8 +79,8 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="*" element={<NotFound />} />
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

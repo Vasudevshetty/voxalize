@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -64,7 +65,11 @@ function Chat() {
 
     try {
       const results = await fetchSuggestions(config);
-      setSuggestions(results);
+      // Ensure suggestions are strings
+      const formattedSuggestions = results.map((suggestion) =>
+        typeof suggestion === "object" ? suggestion.query : suggestion
+      );
+      setSuggestions(formattedSuggestions);
     } catch (err) {
       console.error("Suggestion error:", err);
     }
@@ -84,7 +89,11 @@ function Chat() {
 
       try {
         const results = await fetchCompletions(query, config);
-        setCompletions(results);
+        // Ensure completions are strings
+        const formattedCompletions = results.map((completion) =>
+          typeof completion === "object" ? completion.query : completion
+        );
+        setCompletions(formattedCompletions);
       } catch (err) {
         console.error("Completion error:", err);
       }
