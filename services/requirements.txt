@@ -12,3 +12,4 @@ psycopg2-binary
 googletrans
 python-multipart
 pandas
+twilio
