@@ -5,7 +5,8 @@ import { useState, useRef, useEffect } from "react";
 import { AiOutlineStock } from "react-icons/ai";
 import WaveAnimation from "../components/WaveAnimation";
 import { motion } from "framer-motion";
-
+import Features from "../components/Features";
+import Footer from "../components/Footer";
 function Home() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
@@ -96,7 +97,7 @@ function Home() {
               <span className="text-cyan-500">.</span>
               <span className="text-blue-500">Create</span>
             </div>
-            <p className="text-gray-400 mt-6 text-sm sm:text-base tracking-wider">
+            <p className="text-gray-400 mt-2 mb-6 text-sm sm:text-base tracking-wider">
               Where voice meets visualization through cutting-edge{" "}
               <span className="text-white font-mono">AI</span>.
             </p>
@@ -104,7 +105,7 @@ function Home() {
 
           {/* Chat UI Section */}
           <motion.div
-            className="bg-[#0e0e0e] w-full max-w-4xl rounded-lg flex flex-col h-[26rem] overflow-hidden"
+            className="bg-[#0e0e0e] w-full max-w-4xl rounded-lg flex flex-col h-[26rem] overflow-hidden shadow-[0_0_8px_#00fff066,0_0_12px_#00ffcc55,0_0_16px_#00ffaa44] border border-cyan-400"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
@@ -124,7 +125,7 @@ function Home() {
                       : "bg-[#2a2a2a] text-white border border-gray-600"
                   }`}
                 >
-                  IPL{" "}
+                  IPL
                   <span>
                     <img src="./ipl.png" alt="" className="w-10 h-10" />
                   </span>
@@ -186,20 +187,17 @@ function Home() {
           </motion.div>
         </div>
 
-        {/* Divider */}
-        <div className="w-full border-t-2 border-[#3a3a3a] max-w-4xl mx-auto my-10" />
-
         {/* Horizontal line */}
-        <div className="w-full border-t-2 border-[#3a3a3a] max-w-7xl"></div>
+        <div className="w-full border-t-2 border-[#3a3a3a]  my-12"></div>
 
         {/* Card Section */}
         <motion.div
-          className="bg-gradient-to-r from-[#423e3e] to-black rounded-xl p-6 flex flex-col md:flex-row justify-between items-center max-w-4xl w-[85%] mx-auto mt-8"
+          className=" rounded-xl ml-24  p-4 flex flex-col md:flex-row justify-center items-center  w-[85%]  mt-8"
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <div className="md:w-2/3 space-y-3">
+          <div className="md:w-2/3 space-y-3 px-4">
             <h2 className="text-3xl tracking-wider font-bold">
               Experience the Power of
               <br />
@@ -214,14 +212,12 @@ function Home() {
               Transform complex ideas, pitches, or data into clear, compelling
               visuals — just by speaking.
             </p>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                to="/signup"
-                className="inline-block mt-3 px-8 py-2 bg-gradient-to-r from-green-400 to-cyan-500 text-black font-semibold rounded-full shadow hover:scale-105 transition-transform"
-              >
-                Try Now!
-              </Link>
-            </motion.div>
+            <Link
+              to="/signup"
+              className="inline-block w-fit mt-3 px-8 py-2 bg-gradient-to-r from-green-400 to-cyan-500 text-black font-semibold rounded-full shadow hover:scale-105 transition-transform"
+            >
+              Try Now!
+            </Link>
           </div>
 
           <div className="md:w-1/3 mt-6 md:mt-0">
@@ -232,6 +228,10 @@ function Home() {
             />
           </div>
         </motion.div>
+      </div>
+      <div className="h-screen flex items-center flex-col my-12 ">
+        <Features />
+        <Footer />
       </div>
     </motion.div>
   );

@@ -58,3 +58,19 @@
   animation: wave 1s infinite ease-in-out;
   height: 20%;
 }
+
+@keyframes neon-glow {
+  0% {
+    box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+  }
+  50% {
+    box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff;
+  }
+  100% {
+    box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+  }
+}
+
+.animate-neon-glow {
+  animation: neon-glow 1.5s infinite alternate;
+}
