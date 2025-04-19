@@ -90,7 +90,7 @@ function Home() {
           >
             <WaveAnimation />
             <div className="text-3xl sm:text-5xl font-semibold tracking-wide ml-10">
-              <span className="texen-400">Speak</span>
+              <span className="text-green-400">Speak</span>
               <span className="text-green-500">.</span>
               <span className="text-cyan-400">See</span>
               <span className="text-cyan-500">.</span>
@@ -189,9 +189,12 @@ function Home() {
         {/* Divider */}
         <div className="w-full border-t-2 border-[#3a3a3a] max-w-4xl mx-auto my-10" />
 
-        {/* CTA Section */}
+        {/* Horizontal line */}
+        <div className="w-full border-t-2 border-[#3a3a3a] max-w-7xl"></div>
+
+        {/* Card Section */}
         <motion.div
-          className="bg-[#0e0e0e] rounded-xl p-6 flex flex-col md:flex-row justify-between items-center max-w-4xl w-full mx-auto"
+          className="bg-gradient-to-r from-[#423e3e] to-black rounded-xl p-6 flex flex-col md:flex-row justify-between items-center max-w-4xl w-[85%] mx-auto mt-8"
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
