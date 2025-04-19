@@ -12,7 +12,7 @@ import io
 import sys
 load_dotenv()
 
-groq_api_key_4= os.getenv("GROQ_API_KEY_4")
+groq_api_key_5= os.getenv("GROQ_API_KEY_5")
 
 # Custom callback handler to capture agent's thought process
 class CaptureStdoutCallbackHandler(BaseCallbackHandler):
@@ -33,7 +33,7 @@ def chat_db(db_name, host, user, password, database, query):
     if db_name == "postgresql":
         try:
             llm = ChatGroq(
-                groq_api_key=groq_api_key_4,
+                groq_api_key=groq_api_key_5,
                 model_name="llama-3.3-70b-versatile",
                 streaming=False
             )
@@ -131,7 +131,7 @@ def chat_db(db_name, host, user, password, database, query):
     elif db_name=="mysql":
         try:
             llm = ChatGroq(
-                groq_api_key=groq_api_key_4,
+                groq_api_key=groq_api_key_5,
                 model_name="llama-3.3-70b-versatile",
                 streaming=False
             )
