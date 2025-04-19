@@ -61,14 +61,12 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-black">
       <div className="fixed top-0 right-0 m-4 z-10">
-        <Link
-          to="/profile"
-          className="h-14 w-14 block border-2 border-gray-700 hover:border-cyan-400 transition-colors overflow-hidden rounded-full shadow-lg"
-        >
+        <Link to="/profile" className="flex items-center space-x-4">
+          <div className="text-gray-300">{user?.email}</div>
           <img
             src={import.meta.env.VITE_APP_BACKEND_URL + user?.profileImage}
             alt="Profile"
-            className="w-full h-full object-cover"
+            className="w-8 h-8 rounded-full border border-white"
           />
         </Link>
       </div>
@@ -117,7 +115,7 @@ function Dashboard() {
               >
                 <button
                   onClick={() => handleVoiceDB(db._id)}
-                  className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-xl p-2 mt-2 hover:opacity-90 transition-all"
+                  className="w-full cursor-pointer bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-xl p-2 mt-2 hover:opacity-90 transition-all"
                 >
                   VoiceDB
                 </button>
@@ -130,7 +128,7 @@ function Dashboard() {
             onClick={() => setIsModalOpen(true)}
             className="relative rounded-2xl p-6 border-2 border-dashed border-gray-700 
               hover:border-cyan-400 transition-all duration-300 group
-              flex flex-col items-center justify-center min-h-[200px]"
+              flex flex-col items-center justify-center min-h-[200px] cursor-pointer"
           >
             <FaPlus className="text-4xl text-gray-500 group-hover:text-cyan-400 transition-colors mb-2" />
             <span className="text-gray-500 group-hover:text-cyan-400 transition-colors">
