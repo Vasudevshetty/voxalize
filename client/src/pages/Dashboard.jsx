@@ -60,13 +60,19 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="fixed top-0 right-0 m-4 z-10">
+      <div className="p-4 bg-[#0a1a1a] border-b border-gray-800 flex justify-between items-center">
+        <Link
+          to="/"
+          className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 ml-12"
+        >
+          Voxalize
+        </Link>
         <Link to="/profile" className="flex items-center space-x-4">
           <div className="text-gray-300 max-sm:hidden">{user?.email}</div>
           <img
             src={import.meta.env.VITE_APP_BACKEND_URL + user?.profileImage}
             alt="Profile"
-            className="w-8 h-8 rounded-full border border-white"
+            className="w-8 h-8 rounded-full"
           />
         </Link>
       </div>
