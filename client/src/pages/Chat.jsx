@@ -146,11 +146,16 @@ function Chat() {
   return (
     <div className="h-screen bg-black flex flex-col">
       <div className="p-4 bg-[#0a1a1a] border-b border-gray-800 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 ml-12">
+        <Link
+          to="/"
+          className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 ml-12"
+        >
           Voxalize
-        </h1>
+        </Link>
         <Link to="/profile" className="flex items-center space-x-4">
-          <div className="text-gray-300 max-sm:hidden">{currentSession?.user?.email}</div>
+          <div className="text-gray-300 max-sm:hidden">
+            {currentSession?.user?.email}
+          </div>
           <img
             src={
               import.meta.env.VITE_APP_BACKEND_URL +
