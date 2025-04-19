@@ -3,9 +3,32 @@ import { motion } from "framer-motion";
 import SQLCard from "./SQLCard";
 import { formatDistanceToNow } from "date-fns";
 import { AiOutlineUser, AiOutlineRobot } from "react-icons/ai"; // Icon imports
+import { useState } from "react";
+import { getGraphRecommendations } from "../utils/service";
+import DataVisualization from "./DataVisualization";
 
 const ChatMessage = ({ message }) => {
+  const [visualizationData, setVisualizationData] = useState(null);
+  const [isLoadingViz, setIsLoadingViz] = useState(false);
+  const [vizError, setVizError] = useState(null);
   const isUser = message.user && message.user.username;
+
+  const handleVisualize = async () => {
+    if (!message.sqlResponse) return;
+
+    setIsLoadingViz(true);
+    setVizError(null);
+
+    try {
+      const data = await getGraphRecommendations(message.sqlResponse);
+      setVisualizationData(data);
+    } catch (err) {
+      setVizError("Failed to generate visualization");
+      console.error("Visualization error:", err);
+    } finally {
+      setIsLoadingViz(false);
+    }
+  };
 
   // Render SQLCard if it's a response message
   if (message.sqlQuery && message.sqlResponse) {
@@ -14,7 +37,7 @@ const ChatMessage = ({ message }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="w-full flex justify-center px-4 my-4"
+        className="w-full flex flex-col items-center px-4 my-4"
       >
         <SQLCard
           query={message.requestQuery}
@@ -25,6 +48,40 @@ const ChatMessage = ({ message }) => {
           executionTime={message.executionTime}
           timestamp={message.createdAt}
         />
+
+        {/* Visualization Button */}
+        <motion.button
+          onClick={handleVisualize}
+          disabled={isLoadingViz}
+          className="mt-2 px-4 py-2 bg-[#1a2a2a] border border-cyan-500/30 
+            rounded-lg text-sm text-cyan-400 hover:bg-[#2a3a3a] 
+            transition-all duration-200 disabled:opacity-50"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          {isLoadingViz ? "Generating..." : "Visualize Data"}
+        </motion.button>
+
+        {/* Error Message */}
+        {vizError && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-2 text-sm text-red-400"
+          >
+            {vizError}
+          </motion.div>
+        )}
+
+        {/* Visualization Component */}
+        {visualizationData && (
+          <DataVisualization
+            visualizationData={{
+              data: message.sqlResponse,
+              recommended_graphs: visualizationData.recommended_graphs,
+            }}
+          />
+        )}
       </motion.div>
     );
   }

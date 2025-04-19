@@ -1,27 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
-// IPL Dataset
 const iplChat = [
   { sender: "User", message: "Hi, can you tell me about Virat Kohli?" },
   {
     sender: "Bot",
-    message:
-      "Virat Kohli is an Indian cricketer known for his aggressive batting.",
+    message: "Virat Kohli is an Indian cricketer known for his aggressive batting.",
   },
   { sender: "User", message: "How many centuries has he scored in IPL?" },
   {
     sender: "Bot",
     message: "As of 2024, Kohli has scored 7 centuries in the IPL.",
   },
-  { sender: "User", message: "Nice, show me the top 3 run scorers." },
-  {
-    sender: "Bot",
-    message: "1. Virat Kohli\n2. Shikhar Dhawan\n3. David Warner",
-  },
 ];
 
-// Sales Dataset
 const salesChat = [
   { sender: "User", message: "Hey, how are this quarter's sales?" },
   {
@@ -32,11 +24,6 @@ const salesChat = [
   {
     sender: "Bot",
     message: "The North region had the highest growth at 22%.",
-  },
-  { sender: "User", message: "Top selling product?" },
-  {
-    sender: "Bot",
-    message: "Product X topped the list with over 10,000 units sold.",
   },
 ];
 
@@ -50,18 +37,13 @@ const AutoChatDemo = ({ setActiveChat }) => {
   useEffect(() => {
     let index = 0;
     const currentChat = datasets[datasetIndex];
-
-    setVisibleMessages([]);
     setVisibleMessages([currentChat[0]]);
-    index = 1;
-
-    // Notify parent about the active chat
-    setActiveChat(datasetIndex);
+    setActiveChat(datasetIndex); // Inform parent about the dataset
 
     const interval = setInterval(() => {
-      if (index < currentChat.length) {
-        setVisibleMessages((prev) => [...prev, currentChat[index]]);
+      if (index < currentChat.length - 1) {
         index++;
+        setVisibleMessages((prev) => [...prev, currentChat[index]]);
       } else {
         clearInterval(interval);
         setTimeout(() => {
@@ -73,7 +55,6 @@ const AutoChatDemo = ({ setActiveChat }) => {
     return () => clearInterval(interval);
   }, [datasetIndex, setActiveChat]);
 
-  // Auto scroll to bottom on new message
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTo({
@@ -88,23 +69,21 @@ const AutoChatDemo = ({ setActiveChat }) => {
       ref={chatRef}
       className="flex flex-col gap-3 h-[200px] overflow-y-auto p-3 rounded-lg custom-scrollbar"
     >
-      {visibleMessages.map((msg, i) =>
-        msg ? (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`px-4 py-2 rounded-md max-w-[80%] whitespace-pre-line ${
-              msg.sender === "User"
-                ? "bg-cyan-500 text-black self-end ml-auto"
-                : "bg-gray-800 text-white self-start"
-            }`}
-          >
-            {msg.message}
-          </motion.div>
-        ) : null
-      )}
+      {visibleMessages.map((msg, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className={`px-4 py-2 rounded-md max-w-[80%] whitespace-pre-line ${
+            msg.sender === "User"
+              ? "bg-cyan-500 text-black self-end ml-auto"
+              : "bg-gray-800 text-white self-start"
+          }`}
+        >
+          {msg.message}
+        </motion.div>
+      ))}
     </div>
   );
 };

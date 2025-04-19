@@ -31,6 +31,42 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
+const LoadingText = ({ text }) => (
+  <div className="text-base relative inline-block">
+    <span
+      className="inline-block animate-gradient bg-gradient-to-r from-gray-500 via-white to-gray-500 
+      text-transparent bg-clip-text bg-[length:200%_100%] font-medium tracking-wide
+      drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+    >
+      {text}
+    </span>
+    <div
+      className="absolute top-0 left-0 right-0 h-full pointer-events-none
+      bg-gradient-to-r from-transparent via-white/20 to-transparent 
+      animate-shimmer opacity-50"
+    />
+  </div>
+);
+
+const ErrorMessage = ({ message, onDismiss }) => (
+  <motion.div
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    className="absolute -top-16 left-0 right-0 mx-4"
+  >
+    <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 flex items-center justify-between">
+      <span className="text-red-400 text-sm">{message}</span>
+      <button
+        onClick={onDismiss}
+        className="text-red-400 hover:text-red-300 ml-3"
+      >
+        ✕
+      </button>
+    </div>
+  </motion.div>
+);
+
 export default function VoiceInputBar({
   completions = [],
   suggestions = [],
@@ -40,9 +76,12 @@ export default function VoiceInputBar({
   locale,
   setLocale,
   isLoading,
+  isSuggestionsLoading,
+  isCompletionsLoading,
   onSend,
 }) {
   const [recording, setRecording] = useState(false);
+  const [error, setError] = useState(null);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const inputRef = useRef(null);
@@ -61,12 +100,18 @@ export default function VoiceInputBar({
 
   const startRecording = async () => {
     try {
+      setError(null);
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
       chunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (e) => {
         chunksRef.current.push(e.data);
+      };
+
+      mediaRecorderRef.current.onerror = () => {
+        setError("Recording error occurred. Please try again.");
+        stopRecording();
       };
 
       mediaRecorderRef.current.onstop = async () => {
@@ -109,60 +154,106 @@ export default function VoiceInputBar({
       mediaRecorderRef.current.start();
       setRecording(true);
     } catch (err) {
+      let errorMessage = "Failed to access microphone.";
+      if (err.name === "NotAllowedError") {
+        errorMessage =
+          "Microphone access denied. Please allow microphone access.";
+      } else if (err.name === "NotFoundError") {
+        errorMessage = "No microphone found. Please connect a microphone.";
+      }
+      setError(errorMessage);
       console.error("Microphone access error:", err);
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
+    try {
+      if (mediaRecorderRef.current && recording) {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current.stream
+          .getTracks()
+          .forEach((track) => track.stop());
+      }
+    } catch (err) {
+      setError("Error stopping recording. Please refresh the page.");
+      console.error("Stop recording error:", err);
+    } finally {
       setRecording(false);
     }
   };
 
   return (
     <div className="relative w-full max-w-4xl mx-auto px-4">
+      <AnimatePresence>
+        {error && (
+          <ErrorMessage message={error} onDismiss={() => setError(null)} />
+        )}
+      </AnimatePresence>
+
+      {(isLoading || isSuggestionsLoading || isCompletionsLoading) && (
+        <div className="absolute -top-8 left-0 right-0 text-center">
+          <LoadingText
+            text={
+              isLoading
+                ? "Processing your request..."
+                : isSuggestionsLoading
+                ? "Loading suggestions..."
+                : "Generating completions..."
+            }
+          />
+        </div>
+      )}
+
       {/* Floating Suggestions Box */}
       <AnimatePresence mode="wait">
-        {!recording && (
-          <motion.div
-            key={inputText ? "completions" : "suggestions"}
-            variants={gridVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="mb-2 backdrop-blur-md bg-white/5 border border-white/10 rounded-xl shadow-2xl p-4"
-          >
-            <p className="text-xs text-gray-400 mb-2">
-              {inputText ? "Try completing:" : "Try asking:"}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {(inputText ? completions : suggestions)
-                .slice(0, inputText ? COMPLETIONS_LIMIT : SUGGESTIONS_LIMIT)
-                .map((item, index) => {
-                  const displayText =
-                    typeof item === "object" ? item.query : item;
-                  return (
-                    <motion.button
-                      key={index}
-                      variants={itemVariants}
-                      onClick={() => onSuggestionClick?.(displayText)}
-                      className="text-sm bg-[#1a2a2a] text-gray-300 px-4 py-2 rounded-lg
-                                 border border-gray-700/50 hover:border-cyan-500/30 
-                                 hover:bg-[#2a3a3a] transition-all duration-200"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {displayText}
-                    </motion.button>
-                  );
-                })}
-            </div>
-          </motion.div>
-        )}
+        {!recording &&
+          !isLoading &&
+          !isSuggestionsLoading &&
+          !isCompletionsLoading && (
+            <motion.div
+              key={inputText ? "completions" : "suggestions"}
+              variants={gridVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="mb-2 backdrop-blur-md bg-[#1a1a1a]/80 
+              border-2 border-dotted border-cyan-500/30 rounded-xl 
+              shadow-[0_0_15px_rgba(34,211,238,0.1)] p-4 
+              hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] 
+              transition-all duration-300"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-cyan-400/50 animate-pulse" />
+                <p className="text-xs text-gray-400">
+                  {inputText ? "Try completing:" : "Try asking:"}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {(inputText ? completions : suggestions)
+                  .slice(0, inputText ? COMPLETIONS_LIMIT : SUGGESTIONS_LIMIT)
+                  .map((item, index) => {
+                    const displayText =
+                      typeof item === "object" ? item.query : item;
+                    return (
+                      <motion.button
+                        key={index}
+                        variants={itemVariants}
+                        onClick={() => onSuggestionClick?.(displayText)}
+                        className="text-sm bg-[#2a2a2a]/80 text-gray-300 px-4 py-2 rounded-lg
+                        border border-cyan-500/10 hover:border-cyan-500/30 
+                        hover:bg-[#2a3a3a] hover:shadow-[0_0_10px_rgba(34,211,238,0.1)]
+                        transition-all duration-200"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {displayText}
+                      </motion.button>
+                    );
+                  })}
+              </div>
+            </motion.div>
+          )}
       </AnimatePresence>
 
       {/* Input Bar */}

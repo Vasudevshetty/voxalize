@@ -32,3 +32,15 @@ export const fetchCompletions = async (query, databaseConfig) => {
     throw err;
   }
 };
+
+export const getGraphRecommendations = async (sqlResponse) => {
+  try {
+    const res = await axios.post(`${BASE_URL}/graphrecommender`, {
+      sql_result_json: sqlResponse,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Failed to get graph recommendations:", err);
+    throw err;
+  }
+};
