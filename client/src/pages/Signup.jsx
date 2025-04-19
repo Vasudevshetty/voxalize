@@ -270,7 +270,7 @@ function Signup() {
             <p>
               Already have an account?{" "}
               <Link
-                to="/login"
+                to="/auth/login"
                 className="text-cyan-400 hover:text-cyan-300 transition-colors"
               >
                 Log in
