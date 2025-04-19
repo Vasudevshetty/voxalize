@@ -36,6 +36,7 @@ app.use("/api/v1/auth", require("./routes/auth"));
 app.use("/api/v1/users", require("./routes/user"));
 app.use("/api/v1/databases", require("./routes/database"));
 app.use("/api/v1/sessions", require("./routes/querySession"));
+app.use("/api/v1/messages", require("./routes/queryMessage"));
 
 app.use("/uploads", express.static("uploads"));
 
