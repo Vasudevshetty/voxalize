@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-// eslint-disable-next-line
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
@@ -13,10 +13,9 @@ const LANGUAGES = [
   { label: "Telugu", code: "te" },
 ];
 
-const SUGGESTIONS_LIMIT = 8; // Show 8 suggestions in a 4x2 grid
-const COMPLETIONS_LIMIT = 6; // Show 6 completions in a 3x2 grid
+const SUGGESTIONS_LIMIT = 4;
+const COMPLETIONS_LIMIT = 3;
 
-// Add animation variants
 const gridVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -125,8 +124,8 @@ export default function VoiceInputBar({
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto px-4 py-3">
-      {/* Suggestions or Completions */}
+    <div className="relative w-full max-w-4xl mx-auto px-4">
+      {/* Floating Suggestions Box */}
       <AnimatePresence mode="wait">
         {!recording && (
           <motion.div
@@ -135,35 +134,39 @@ export default function VoiceInputBar({
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="mb-4"
+            className="mb-2 backdrop-blur-md bg-white/5 border border-white/10 rounded-xl shadow-2xl p-4"
           >
-            <p className="text-xs text-gray-400 mb-3">
+            <p className="text-xs text-gray-400 mb-2">
               {inputText ? "Try completing:" : "Try asking:"}
             </p>
             <div className="flex flex-wrap gap-2">
               {(inputText ? completions : suggestions)
                 .slice(0, inputText ? COMPLETIONS_LIMIT : SUGGESTIONS_LIMIT)
-                .map((item, index) => (
-                  <motion.button
-                    key={index}
-                    variants={itemVariants}
-                    onClick={() => onSuggestionClick?.(item)}
-                    className="text-sm bg-[#1a2a2a] text-gray-300 px-4 py-2 rounded-lg
-                              border border-gray-700/50 hover:border-cyan-500/30 
-                              hover:bg-[#2a3a3a] transition-all duration-200"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {item}
-                  </motion.button>
-                ))}
+                .map((item, index) => {
+                  const displayText =
+                    typeof item === "object" ? item.query : item;
+                  return (
+                    <motion.button
+                      key={index}
+                      variants={itemVariants}
+                      onClick={() => onSuggestionClick?.(displayText)}
+                      className="text-sm bg-[#1a2a2a] text-gray-300 px-4 py-2 rounded-lg
+                                 border border-gray-700/50 hover:border-cyan-500/30 
+                                 hover:bg-[#2a3a3a] transition-all duration-200"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {displayText}
+                    </motion.button>
+                  );
+                })}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Input Bar */}
-      <div className="flex flex-wrap gap-3 items-center bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-lg px-4 py-3">
+      <div className="flex flex-wrap gap-2 items-center px-2 py-3">
         {!recording ? (
           <>
             <input
@@ -174,8 +177,8 @@ export default function VoiceInputBar({
               placeholder="Ask anything about your database..."
               disabled={isLoading}
               className="flex-1 min-w-[200px] bg-[#2a2a2a] text-white px-4 py-2.5
-                       rounded-lg border border-gray-700 focus:outline-none focus:border-cyan-400
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+                         rounded-lg border border-gray-700 focus:outline-none focus:border-cyan-400
+                         disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             <select
@@ -183,8 +186,8 @@ export default function VoiceInputBar({
               onChange={(e) => setLocale(e.target.value)}
               disabled={recording || isLoading}
               className="bg-[#1a2a2a] text-gray-300 rounded-lg px-4 py-2.5
-                       border border-gray-700 focus:outline-none focus:border-cyan-400
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+                         border border-gray-700 focus:outline-none focus:border-cyan-400
+                         disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {LANGUAGES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
@@ -213,11 +216,11 @@ export default function VoiceInputBar({
             whileTap={{ scale: 0.95 }}
             disabled={isLoading}
             className={`p-3.5 rounded-lg font-medium transition-all duration-300 
-                     disabled:opacity-50 disabled:cursor-not-allowed ${
-                       recording
-                         ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                         : "bg-gradient-to-r from-green-400 to-cyan-400 text-black hover:opacity-90"
-                     }`}
+                       disabled:opacity-50 disabled:cursor-not-allowed ${
+                         recording
+                           ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
+                           : "bg-gradient-to-r from-green-400 to-cyan-400 text-black hover:opacity-90"
+                       }`}
           >
             {recording ? (
               <FaMicrophoneSlash size={20} />
@@ -233,8 +236,8 @@ export default function VoiceInputBar({
               whileTap={{ scale: 0.95 }}
               disabled={isLoading}
               className="p-3.5 rounded-lg font-medium bg-gradient-to-r from-green-400 to-cyan-400 
-                       text-black hover:opacity-90 transition-all duration-300
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+                         text-black hover:opacity-90 transition-all duration-300
+                         disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <IoSend size={20} />
             </motion.button>

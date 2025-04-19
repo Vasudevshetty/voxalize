@@ -7,7 +7,10 @@ export const fetchSuggestions = async (databaseConfig) => {
     const res = await axios.post(`${BASE_URL}/recommend`, {
       database_config: databaseConfig,
     });
-    return res.data.recommended_queries;
+    // Ensure we return strings
+    return res.data.recommended_queries.map((query) =>
+      typeof query === "object" ? query.query : query
+    );
   } catch (err) {
     console.error("Failed to fetch suggestions:", err);
     throw err;
@@ -20,7 +23,10 @@ export const fetchCompletions = async (query, databaseConfig) => {
       term: query,
       database_config: databaseConfig,
     });
-    return res.data.completions;
+    // Ensure we return strings
+    return res.data.completions.map((completion) =>
+      typeof completion === "object" ? completion.query : completion
+    );
   } catch (err) {
     console.error("Failed to fetch completions:", err);
     throw err;
