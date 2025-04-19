@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Form
+from fastapi import FastAPI, HTTPException, UploadFile, Form, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from utils.db import configure_db, get_database_schema
@@ -14,6 +14,9 @@ from typing import Optional, List, Dict, Any
 import json
 import re
 import traceback
+import requests
+from twilio.twiml.messaging_response import MessagingResponse
+
 load_dotenv()
 
 
@@ -387,6 +390,69 @@ async def recommend_graph(request: GraphRecommendationRequest) -> Dict[str, List
         raise HTTPException(status_code=500, detail="Error generating graph recommendations.")
 
     return {"recommended_graphs": recommended_graphs}
+
+load_dotenv()
+
+TWILIO_NUMBER = os.getenv("TWILLIO_NUMBER")  
+ACCOUNT_SID    = os.getenv("ACCOUNT_SID")
+AUTH_TOKEN    = os.getenv("AUTH_TOKEN")
+
+CHAT_API_URL  = "https://studysyncs.xyz/services/chat"   
+
+@api.post("/whatsapp")
+async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
+    """
+    Twilio will POST here on incoming WhatsApp messages.
+    Expect Body to be a JSON string:
+    {
+      "database_config": { dbtype, host, user, password, dbname },
+      "query_request":   { query }
+    }
+    """
+    resp = MessagingResponse()
+
+    try:
+        payload = json.loads(Body.strip())
+        assert "database_config" in payload and "query_request" in payload
+    except Exception:
+        resp.message(
+            "⚠️ Please send a valid JSON with 'database_config' and 'query_request'.\n"
+            "Example:\n"
+            "{\n"
+            '  "database_config": {"dbtype":"postgresql","host":"...","user":"...","password":"...","dbname":"..."},\n'
+            '  "query_request": {"query":"count users"}\n'
+            "}"
+        )
+        return Response(content=str(resp), media_type="application/xml")
+
+    try:
+        r = requests.post(CHAT_API_URL, json=payload, timeout=30)
+        r.raise_for_status()
+        result = r.json()
+    except Exception as e:
+        resp.message(f"❌ Error calling chat API:\n{e}")
+        return Response(content=str(resp), media_type="application/xml")
+
+    # format and send back
+    sql      = result.get("sql_query", "<none>")
+    summary  = result.get("summary", "<none>")
+    title    = result.get("title", "")
+    rows     = result.get("sql_result")
+    # truncate very long results
+    rows_str = json.dumps(rows, indent=2)
+    if len(rows_str) > 800:
+        rows_str = rows_str[:800] + "\n…(truncated)"
+
+    msg = (
+        f"✅ *Query OK*\n\n"
+        f"*SQL:*```{sql}```\n\n"
+        f"*Title:* {title}\n\n"
+        f"*Summary:* {summary}\n\n"
+        f"*Rows:*```json\n{rows_str}\n```"
+    )
+    resp.message(msg)
+
+    return Response(content=str(resp), media_type="application/xml")
 
 
 if __name__ == "__main__":
