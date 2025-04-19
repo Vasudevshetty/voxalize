@@ -20,8 +20,6 @@ load_dotenv()
 groq_api_key_2 = os.getenv("GROQ_API_KEY_2")
 
 
-
-
 api = FastAPI()
 client = Groq(api_key=groq_api_key_2)
 
@@ -36,11 +34,11 @@ api.add_middleware(
 client = Groq(api_key=groq_api_key_2)
 
 class DatabaseConfig(BaseModel):
-    dbname: str
+    dbtype: str
     host: str
     user: str
     password: str
-    database: str
+    dbname: str
     
 class QueryRequest(BaseModel):
     query: str
@@ -80,13 +78,13 @@ async def chat_with_db(request_data: dict):
     
     try:
         db, engine = configure_db(
-            db_config.dbname, db_config.host, db_config.user, 
-            db_config.password, db_config.database
+            db_config.dbtype, db_config.host, db_config.user, 
+            db_config.password, db_config.dbname
         )
     
         result = chat_db(
-            db_config.dbname, db_config.host, db_config.user, 
-            db_config.password, db_config.database, query_request.query
+            db_config.dbtype, db_config.host, db_config.user, 
+            db_config.password, db_config.dbname, query_request.query
         )
         
         return result
@@ -111,7 +109,7 @@ async def recommend_queries(request_data: dict):
         raise HTTPException(status_code=400, detail=f"Invalid request format: {str(e)}")
     
     try:
-        _, engine = configure_db(db_config.dbname, db_config.host, db_config.user, db_config.password, db_config.database)
+        _, engine = configure_db(db_config.dbtype, db_config.host, db_config.user, db_config.password, db_config.dbname)
         
         schema = get_database_schema(engine)
         
@@ -247,7 +245,7 @@ async def search_completions(request: SearchCompletionsRequest):
     if config:
         try:
             _, engine = configure_db(
-                config.dbname, config.host, config.user, config.password, config.database
+                config.dbtype, config.host, config.user, config.password, config.dbname
             )
             schema = get_database_schema(engine)
         except Exception as e:
