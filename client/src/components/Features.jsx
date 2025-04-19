@@ -12,11 +12,11 @@ import {
 function Features() {
   const [selectedFeature, setSelectedFeature] = useState(0);
 
-  // Faster auto-rotation through features (2.5 seconds instead of 5 seconds)
+  // Even faster auto-rotation through features (1 second instead of 2.5 seconds)
   useEffect(() => {
     const interval = setInterval(() => {
       setSelectedFeature((prev) => (prev + 1) % features.length);
-    }, 2500);
+    }, 1500); // Changed from 2500ms to 1000ms for much faster rotation
 
     return () => clearInterval(interval);
   }, []);
@@ -61,7 +61,7 @@ function Features() {
   ];
 
   return (
-    <div className="bg-gradient-to-r from-black via-gray-900 to-purple-900 rounded-lg py-12 md:py-24 w-full md:w-[90vw]">
+    <div className="bg-gradient-to-r from-blue-900 via-gray-900 to-purple-900 py-12 md:py-24 w-full md:w-[90vw]">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0 }}
@@ -87,7 +87,7 @@ function Features() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.3 }} // Faster transition to match faster rotation
               className="bg-gray-800 bg-opacity-30 backdrop-blur-sm p-4 md:p-8 rounded-2xl border border-gray-700 shadow-lg h-auto md:h-64 w-full"
             >
               <div className="flex items-center mb-4 md:mb-6">
@@ -129,7 +129,7 @@ function Features() {
                         scale: selectedFeature === index ? [1, 1.2, 1] : 1,
                       }}
                       transition={{
-                        duration: 0.8,
+                        duration: 0.5, // Faster animation for the pulsing effect
                         repeat: selectedFeature === index ? Infinity : 0,
                         repeatType: "reverse",
                       }}
@@ -149,7 +149,7 @@ function Features() {
       <style jsx>{`
         .hexagon {
           position: relative;
-          width: 40px;
+          width: 80px;
           height: 90px;
           clip-path: polygon(
             50% 0%,
