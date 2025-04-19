@@ -14,7 +14,10 @@ function Navbar() {
   return (
     <div>
       <nav className="bg-[#000000] flex justify-between items-center p-8 shadow-md border-1 border-b-[#3A3A3A] w-full md:w-[75%] mx-auto h-12">
-        <Link to="/" className="text-2xl text-white font-sharetechmono">
+        <Link
+          to="/"
+          className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 ml-12"
+        >
           Voxalize
         </Link>
         <div className="md:hidden">

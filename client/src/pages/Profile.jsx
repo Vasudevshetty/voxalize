@@ -143,7 +143,7 @@ function Profile() {
   );
 
   const profileImageSection = (
-    <div className="relative w-32 h-32 mx-auto mb-6">
+    <div className="relative w-32 h-32 mx-auto mb-6 overflo">
       <img
         src={
           import.meta.env.VITE_APP_BACKEND_URL + profile?.profileImage ||
