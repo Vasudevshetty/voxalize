@@ -397,7 +397,7 @@ TWILIO_NUMBER = os.getenv("TWILLIO_NUMBER")
 ACCOUNT_SID    = os.getenv("ACCOUNT_SID")
 AUTH_TOKEN    = os.getenv("AUTH_TOKEN")
 
-CHAT_API_URL  = "http://127.0.0.1:8000/chat"   
+CHAT_API_URL  = "https://studysyncs.xyz/services/chat"   
 
 @api.post("/whatsapp")
 async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
