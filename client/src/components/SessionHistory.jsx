@@ -125,47 +125,69 @@ function SessionHistory({ sidebarOpen, setSidebarOpen }) {
 
   return (
     <>
-      {!sidebarOpen && (
-        <button
-          className="fixed top-4 left-4 z-50 p-2 rounded-lg cursor-pointer transition-colors text-white"
-          onClick={() => setSidebarOpen(true)}
-        >
-          <MdMenu size={24} color="white" />
-        </button>
-      )}
-
-      <aside
-        className={`fixed top-0 left-0 h-screen bg-[#131313] border-r border-gray-800 transition-all duration-300 z-40
-          ${sidebarOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"}`}
+      {/* Mobile Menu Button */}
+      <button
+        className={`fixed top-4 left-4 z-50 p-2 rounded-lg cursor-pointer 
+          transition-all duration-300 text-white lg:hidden
+          hover:bg-gray-800/50 backdrop-blur-sm
+          ${sidebarOpen ? "opacity-0" : "opacity-100"}`}
+        onClick={() => setSidebarOpen(true)}
       >
-        <div className="p-4 flex items-center justify-center relative border-b border-gray-800">
+        <MdMenu size={24} />
+      </button>
+
+      {/* Mobile Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden
+          ${sidebarOpen ? "opacity-100 z-30" : "opacity-0 -z-10"}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed lg:sticky top-0 left-0 h-screen
+          bg-[#131313] border-r border-gray-800
+          transition-transform duration-300 ease-in-out z-40
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }
+          w-[280px] lg:w-80`}
+      >
+        {/* Header */}
+        <div className="h-16 p-4 flex items-center justify-between border-b border-gray-800">
           <Link
             to="/dashboard"
-            className="absolute left-4 text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors"
           >
             <FaHome size={20} />
           </Link>
           <GradientTitle />
           <button
             onClick={() => setSidebarOpen(false)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white cursor-pointer rounded-lg transition-colors"
+            className="lg:hidden text-white p-2 hover:bg-gray-800/50 rounded-lg transition-colors"
           >
             <FaAngleLeft size={20} />
           </button>
         </div>
 
-        <div className="p-4">{renderSessions()}</div>
+        {/* Sessions List */}
+        <div className="h-[calc(100vh-4rem)] overflow-hidden">
+          <div className="p-4 h-full overflow-y-auto">{renderSessions()}</div>
+        </div>
       </aside>
 
+      {/* Context Menu */}
       {openMenuId && (
         <div
-          className="fixed z-50 w-10 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg p-1 flex flex-col items-center space-y-1"
+          className="fixed z-[60] w-10 bg-[#1e1e1e] border border-gray-700 
+            rounded-lg shadow-lg p-1 flex flex-col items-center space-y-1"
           style={{ top: menuPosition.top, left: menuPosition.left }}
         >
           <button
-            className="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-500/10 transition"
+            className="text-red-400 hover:text-red-600 p-2 rounded-full 
+              hover:bg-red-500/10 transition-colors"
             onClick={() => {
-              // your delete logic
+              // Delete logic here
               setOpenMenuId(null);
             }}
             title="Delete"

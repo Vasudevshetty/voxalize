@@ -1,9 +1,24 @@
 import SessionHistory from "./SessionHistory";
 import { Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Close sidebar by default on mobile screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-black">
@@ -11,13 +26,12 @@ function Layout() {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
-      <div
-        className={`transition-all duration-300 ${
-          sidebarOpen ? "ml-80" : "ml-0"
-        } flex-1`}
+      <main
+        className={`flex-1 transition-all duration-300
+          ${sidebarOpen ? "lg:ml-0" : "ml-0"}`}
       >
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }
