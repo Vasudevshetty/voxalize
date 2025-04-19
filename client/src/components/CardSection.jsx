@@ -26,7 +26,7 @@ function CardSection() {
           or strategizing, see how fast your voice can turn into impact.
         </p>
         <Link
-          to="/signup"
+          to="/auth/signup"
           className="inline-block w-fit mt-3 px-8 py-2 bg-gradient-to-r from-green-400 to-cyan-500 text-black font-semibold rounded-full shadow hover:scale-105 transition-transform"
         >
           Try Now!
