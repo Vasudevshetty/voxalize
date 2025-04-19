@@ -164,7 +164,7 @@ function Chat() {
 
   return (
     <div className="h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col">
-      <div className="px-6 py-4 bg-[#0a1a1a]/90 border-b border-gray-800 backdrop-blur-sm flex justify-between items-center sticky top-0 z-10">
+      <div className="px-6 py-3 bg-[#0a1a1a]/90 border-b border-gray-800 backdrop-blur-sm flex justify-between items-center sticky top-0 z-10">
         <Link
           to="/"
           className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 hover:from-green-300 hover:to-cyan-300 transition-colors"
