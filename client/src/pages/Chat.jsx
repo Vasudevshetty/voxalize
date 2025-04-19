@@ -150,7 +150,7 @@ function Chat() {
           Voxalize
         </h1>
         <Link to="/profile" className="flex items-center space-x-4">
-          <div className="text-gray-300">{currentSession?.user?.email}</div>
+          <div className="text-gray-300 max-sm:hidden">{currentSession?.user?.email}</div>
           <img
             src={
               import.meta.env.VITE_APP_BACKEND_URL +
