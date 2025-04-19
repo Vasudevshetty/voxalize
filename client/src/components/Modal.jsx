@@ -52,10 +52,10 @@ function Modal({ isOpen, onClose }) {
       >
         <button
           type="button"
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors text-2xl"
           onClick={onClose}
         >
-          ×
+          X
         </button>
 
         <h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400">
@@ -178,7 +178,7 @@ function Modal({ isOpen, onClose }) {
           <button
             type="submit"
             disabled={loading.create}
-            className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-lg p-3 hover:opacity-90 transition-opacity flex items-center justify-center"
+            className="w-full bg-gradient-to-r cursor-pointer from-green-400 to-cyan-400 text-white rounded-lg p-3 hover:opacity-90 transition-opacity flex items-center justify-center"
           >
             {loading.create ? (
               <>

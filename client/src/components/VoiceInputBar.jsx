@@ -216,7 +216,7 @@ export default function VoiceInputBar({
             whileTap={{ scale: 0.95 }}
             disabled={isLoading}
             className={`p-3.5 rounded-lg font-medium transition-all duration-300 
-                       disabled:opacity-50 disabled:cursor-not-allowed ${
+                       disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
                          recording
                            ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
                            : "bg-gradient-to-r from-green-400 to-cyan-400 text-black hover:opacity-90"
@@ -237,7 +237,7 @@ export default function VoiceInputBar({
               disabled={isLoading}
               className="p-3.5 rounded-lg font-medium bg-gradient-to-r from-green-400 to-cyan-400 
                          text-black hover:opacity-90 transition-all duration-300
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                         disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <IoSend size={20} />
             </motion.button>
