@@ -90,13 +90,10 @@ function Home() {
             transition={{ duration: 0.6 }}
           >
             <WaveAnimation />
-            <div className="text-3xl sm:text-5xl font-semibold tracking-wide ml-10">
-              <span className="text-green-400">Speak</span>
-              <span className="text-green-500">.</span>
-              <span className="text-cyan-400">See</span>
-              <span className="text-cyan-500">.</span>
-              <span className="text-blue-500">Create</span>
+            <div className="text-3xl sm:text-5xl mb-4 font-semibold tracking-wide ml-10 bg-gradient-to-r from-green-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Speak. See. Create
             </div>
+
             <p className="text-gray-400 mt-2 mb-6 text-sm sm:text-base tracking-wider">
               Where voice meets visualization through cutting-edge{" "}
               <span className="text-white font-mono">AI</span>.
