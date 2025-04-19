@@ -37,7 +37,7 @@ function CardSection() {
         <img
           src="/hero.png"
           alt="Visualization Illustration"
-          className="w-64 sm:w-80 md:w-96 h-auto rounded-r-xl"
+          className="w-64 sm:w-80 md:w-96 h-auto rounded-r-xl hidden md:block"
         />
       </div>
     </motion.div>
