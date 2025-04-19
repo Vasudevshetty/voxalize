@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import VoiceToTextTranslator from "../components/VoiceToText";
-
+import Footer from "../components/Footer";
+import Features from "../components/Features";
 function Home() {
   return (
     <div className="bg-[#000000]">
@@ -25,18 +26,10 @@ function Home() {
           </p>
         </div>
 
-        {/* Mic Control */}
         <div className="h-96  text-white border w-full ">
           DEMO PART
           <VoiceToTextTranslator />
         </div>
-        {/* <div className="flex items-center justify-between w-58 bg-[#1a1a1a] rounded-full px-6 py-3 relative shadow-lg">
-        <FaSearch size={26} className="text-gray-400 text-lg" />
-        <div className="w-16 h-16  bg-black rounded-full flex items-center justify-center shadow-lg">
-          <FaMicrophone size={36} className="text-blue-500 text-xl " />
-        </div>
-        <FaLanguage size={26} className="text-gray-400 text-lg" />
-      </div> */}
 
         {/* Horizontal line */}
         <div className="w-full border-t-2 border-[#3a3a3a]  max-w-4xl"></div>
@@ -78,7 +71,13 @@ function Home() {
             />
           </div>
         </div>
+
+        {/* Features section */}
+        <div>
+          <Features />
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }
