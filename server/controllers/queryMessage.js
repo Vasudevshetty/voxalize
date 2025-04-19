@@ -3,9 +3,8 @@ const Database = require("../models/database");
 const mongoose = require("mongoose");
 const axios = require("axios");
 
-// Create a new query message
 const createQueryMessage = async (req, res) => {
-  const startTime = Date.now(); // Add timestamp at start
+  const startTime = Date.now();
 
   try {
     const database = await Database.findById(req.body.databaseId);
@@ -17,7 +16,7 @@ const createQueryMessage = async (req, res) => {
 
     let response;
     try {
-      response = await axios.post("https://studysyncs.xyz/services/chat", {
+      const apiRes = await axios.post("https://studysyncs.xyz/services/chat", {
         query_request: {
           query: req.body.requestQuery,
         },
@@ -30,19 +29,33 @@ const createQueryMessage = async (req, res) => {
         },
       });
 
-      response = response.data;
+      response = apiRes.data;
+
+      // Handle custom error response returned from FastAPI with status 200
+      if (response.error) {
+        return res.status(400).json({
+          error: response.error,
+          details: response.details || "No additional details provided",
+        });
+      }
     } catch (error) {
       if (error.response) {
-        console.log(error);
-        throw new Error(
-          `Chat service error: ${
-            error.response.data.message || "Unknown error"
-          }`
-        );
+        // FastAPI returned an HTTP error status
+        const status = error.response.status;
+        const errorData = error.response.data;
+
+        return res.status(status).json({
+          error: errorData.detail || "Chat service error",
+          code: status,
+        });
       } else if (error.request) {
-        throw new Error("Unable to reach chat service");
+        return res.status(503).json({
+          error: "Unable to reach chat service. Please try again later.",
+        });
       } else {
-        throw new Error(`Error: ${error.message}`);
+        return res
+          .status(500)
+          .json({ error: `Unexpected error: ${error.message}` });
       }
     }
 
@@ -52,9 +65,9 @@ const createQueryMessage = async (req, res) => {
       sql_result,
       summary,
       agent_thought_process,
+      title,
     } = response;
 
-    // Create and save the query message with calculated execution time
     const queryMessage = new QueryMessage({
       session: req.body.sessionId,
       user: req.user._id,
@@ -63,22 +76,21 @@ const createQueryMessage = async (req, res) => {
       sqlResponse: sql_result,
       summary,
       thoughtProcess: agent_thought_process,
-      executionTime: Date.now() - startTime, // Calculate execution time
+      executionTime: Date.now() - startTime,
     });
 
     const savedMessage = await queryMessage.save();
 
-    // Update session title if provided
-    if (response.title) {
+    if (title) {
       await mongoose
         .model("QuerySession")
-        .findByIdAndUpdate(req.body.sessionId, { title: response.title });
+        .findByIdAndUpdate(req.body.sessionId, { title });
     }
 
-    res.status(201).json(savedMessage);
+    return res.status(201).json(savedMessage);
   } catch (error) {
-    res.status(400).json({ error: error.message });
     console.error("Error creating query message:", error);
+    return res.status(500).json({ error: error.message });
   }
 };
 
