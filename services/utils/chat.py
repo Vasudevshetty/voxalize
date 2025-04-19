@@ -208,7 +208,7 @@ def chat_db(db_name, host, user, password, database, query):
 
             Please provide a brief overview of these results in 5 to 8 words.
             """
-            overview = llm.invoke(overview_prompt).content
+            title = llm.invoke(overview_prompt).content
             
             return {
                 "user_query": query,
