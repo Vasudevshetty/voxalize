@@ -21,7 +21,7 @@ const createQuerySession = async (req, res) => {
 const getQuerySessions = async (req, res) => {
   try {
     const sessions = await QuerySession.find({ user: req.user._id })
-      .populate("user", "username email")
+      .populate("user", "username email profileImage")
       .populate("database", "name");
     res.status(200).json(sessions);
   } catch (error) {
@@ -33,7 +33,7 @@ const getQuerySessions = async (req, res) => {
 const getQuerySessionById = async (req, res) => {
   try {
     const session = await QuerySession.findById(req.params.id)
-      .populate("user", "username email")
+      .populate("user", "username email profileImage")
       .populate("database", "name");
     if (!session) {
       return res.status(404).json({ message: "Query session not found" });

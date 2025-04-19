@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getQuerySessions } from "../redux/slices/querySession";
-import { IoMdClose } from "react-icons/io";
-import { FaAngleLeft, FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { FaAngleLeft, FaHome, FaSpinner, FaTrashAlt } from "react-icons/fa";
 import { MdMenu } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
@@ -140,6 +139,12 @@ function SessionHistory({ sidebarOpen, setSidebarOpen }) {
           ${sidebarOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"}`}
       >
         <div className="p-4 flex items-center justify-center relative border-b border-gray-800">
+          <Link
+            to="/dashboard"
+            className="absolute left-4 text-gray-400 hover:text-white transition-colors"
+          >
+            <FaHome size={20} />
+          </Link>
           <GradientTitle />
           <button
             onClick={() => setSidebarOpen(false)}
