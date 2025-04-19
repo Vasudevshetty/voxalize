@@ -34,6 +34,8 @@ app.get("/api/v1", (req, res) => {
 
 app.use("/api/v1/auth", require("./routes/auth"));
 app.use("/api/v1/users", require("./routes/user"));
+app.use("/api/v1/databases", require("./routes/database"));
+app.use("/api/v1/sessions", require("./routes/querySession"));
 
 app.use("/uploads", express.static("uploads"));
 

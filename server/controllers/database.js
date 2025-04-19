@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 exports.createDatabase = async (req, res) => {
   try {
-    const { host, userName, password, database, dbType } = req.body;
+    const { host, username, password, database, dbType } = req.body;
 
     // Validate DB type
     if (!["mysql", "postgresql"].includes(dbType)) {
@@ -14,7 +14,7 @@ exports.createDatabase = async (req, res) => {
     const newDatabase = await Database.create({
       user: req.user._id, // assuming the user is attached to the req object
       host,
-      userName,
+      username,
       password, // Consider encrypting the password before saving it
       database,
       dbType,
