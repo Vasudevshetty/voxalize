@@ -28,7 +28,7 @@ function DemoChat() {
       </motion.div>
 
       <motion.div
-        className="bg-[#0e0e0e] w-full max-w-4xl rounded-lg flex flex-col h-[26rem] overflow-hidden shadow-[0_0_8px_#00fff066,0_0_12px_#00ffcc55,0_0_16px_#00ffaa44] border border-cyan-400 mx-auto mt-16"
+        className="bg-[#0e0e0e] w-full max-w-6xl rounded-xl flex flex-col h-[26rem] overflow-hidden shadow-[0_0_8px_#00fff066,0_0_12px_#00ffcc55,0_0_16px_#00ffaa44] border border-cyan-400 mx-auto mt-16"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.6 }}
@@ -41,7 +41,7 @@ function DemoChat() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`px-3 py-1 rounded-md text-sm font-medium h-10 flex items-center gap-2 ${
+              className={`px-3 py-1 rounded-md text-sm font-medium h-10 flex items-center gap-2 cursor-pointer ${
                 activeChat === 0
                   ? "bg-cyan-500 text-black"
                   : "bg-[#2a2a2a] text-white border border-gray-600"
@@ -53,7 +53,7 @@ function DemoChat() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`px-3 py-1 rounded-md text-sm font-medium h-10 flex items-center gap-2 ${
+              className={`px-3 py-1 rounded-md text-sm font-medium h-10 flex items-center gap-2 cursor-pointer ${
                 activeChat === 1
                   ? "bg-green-500 text-black"
                   : "bg-[#2a2a2a] text-white border border-gray-600"
