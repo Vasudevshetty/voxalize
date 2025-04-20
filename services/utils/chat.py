@@ -12,7 +12,7 @@ import io
 import sys
 load_dotenv()
 
-groq_api_key_5= os.getenv("GROQ_API_KEY_3")
+groq_api_key_5= os.getenv("GROQ_API_KEY_6")
 
 # Custom callback handler to capture agent's thought process
 class CaptureStdoutCallbackHandler(BaseCallbackHandler):
