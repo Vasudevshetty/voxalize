@@ -267,7 +267,7 @@ export default function VoiceInputBar({
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Ask anything about your database..."
               disabled={isLoading}
-              className="flex-1 min-w-[200px] bg-[#2a2a2a] text-white px-4 py-2.5
+              className="flex-1  min-w-[200px]   bg-[#2a2a2a] text-white px-4 py-2.5
                          rounded-lg border border-gray-700 focus:outline-none focus:border-cyan-400
                          disabled:opacity-50 disabled:cursor-not-allowed"
             />
@@ -288,7 +288,7 @@ export default function VoiceInputBar({
             </select>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center py-2">
+          <div className="flex-1 flex items-center justify-center py-2 relative">
             <motion.p
               className="text-lg text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400"
               initial={{ opacity: 0 }}
@@ -297,10 +297,13 @@ export default function VoiceInputBar({
             >
               🎙️ Listening...
             </motion.p>
+            <div className="absolute bottom-full mb-2 flex items-center justify-center w-full z-10">
+              <Wave />
+            </div>
           </div>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 ">
           <motion.button
             onClick={recording ? stopRecording : startRecording}
             whileHover={{ scale: 1.05 }}
@@ -338,3 +341,51 @@ export default function VoiceInputBar({
     </div>
   );
 }
+const Wave = () => {
+  const bars = Array.from({ length: 12 });
+
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @keyframes moveUp {
+        0%, 100% { height: 40%; transform: translateY(0); }
+        50% { height: 90%; transform: translateY(-6px); }
+      }
+
+      @keyframes moveDown {
+        0%, 100% { height: 40%; transform: translateY(0); }
+        50% { height: 90%; transform: translateY(6px); }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
+  const getAnimationStyle = (index) => {
+    const isMovingUp = index % 2 === 0;
+    const animation = isMovingUp ? "moveUp" : "moveDown";
+
+    let baseHeight;
+    if (index % 6 === 0 || index % 6 === 5) baseHeight = "20px";
+    else if (index % 6 === 1 || index % 6 === 4) baseHeight = "28px";
+    else baseHeight = "36px";
+
+    return {
+      animation: `${animation} 1.3s infinite ease-in-out`,
+      animationDelay: `${index * 0.1}s`,
+      height: baseHeight,
+    };
+  };
+
+  return (
+    <div className="flex items-end justify-center h-16 w-full px-4">
+      {bars.map((_, index) => (
+        <div
+          key={index}
+          className="w-1.5 mx-0.5 rounded-full bg-gradient-to-b from-green-400 to-blue-500"
+          style={getAnimationStyle(index)}
+        />
+      ))}
+    </div>
+  );
+};
