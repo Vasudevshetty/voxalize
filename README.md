@@ -1,6 +1,8 @@
 # Voxalize (Haskfest Hackathon)
 
-A voice‑driven database chat platform that lets you connect to a SQL database, ask questions by voice or text, and get back answers, SQL queries, result tables, summaries and even a short title—all powered by Groq LLM, LangChain and a modern React/Redux + Node.js/Express + MongoDB stack.
+A voice‑driven database chat platform that lets you connect to a SQL database, ask questions by voice or text, and get back answers, SQL queries, result tables, summaries and even a short title—all powered by llama LLM, LangChain and a modern React/Redux + Node.js/Express + MongoDB stack.
+
+🏆 Winner of the Haskfest 36‑hour Hackathon at Nitte NMAM Institute
 
 ## 🚀 Features
 
