@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    outDir: "/var/www/studysyncs.xyz",
+    outDir: "/var/www/voxalize.fauxigent.com",
     emptyOutDir: true,
   },
 });

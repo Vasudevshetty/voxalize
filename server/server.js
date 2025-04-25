@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_PROD],
+    origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_PROD, process.env.FRONTEND_URL_PROD_2],
     credentials: true,
   })
 );
